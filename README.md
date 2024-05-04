@@ -81,14 +81,14 @@ The Cognito User Pool module provisions the following resources:
 module "cognito_user_pool" {
   source = "../modules/cognito_user_pool"
 
-  cognito_domain_module_var  = ""
-  userpool_name_module_var   = ""
-  provider_name_module_var   = ""
-  certificate_arn_module_var = ""
-  sp_metadata_url_module_var = ""
-  callback_urls_module_var   = [""]
-  logout_urls_module_var     = [""]
-  route53_zone_id_var        = "" # Replace with your Route 53 hosted zone ID
+  cognito_domain_module  = ""
+  userpool_name_module   = ""
+  provider_name_module   = ""
+  certificate_arn_module = ""
+  sp_metadata_url_module = ""
+  callback_urls_module   = [""]
+  logout_urls_module     = [""]
+  route53_zone_id        = "" # Replace with your Route 53 hosted zone ID
 }
 ```
 

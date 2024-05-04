@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "main" {
-  name = var.userpool_name_module_var
+  name = var.userpool_name_module
 
   username_configuration {
     case_sensitive = false
@@ -59,19 +59,19 @@ resource "aws_cognito_user_pool" "main" {
 
 
 resource "aws_cognito_user_pool_domain" "main" {
-  domain          = var.cognito_domain_module_var
-  certificate_arn = var.certificate_arn_module_var
+  domain          = var.cognito_domain_module
+  certificate_arn = var.certificate_arn_module
   user_pool_id    = aws_cognito_user_pool.main.id
 }
 
 resource "aws_cognito_user_pool_client" "main" {
-  name = var.userpool_name_module_var
+  name = var.userpool_name_module
 
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["email", "openid"]
-  callback_urls                        = var.callback_urls_module_var
-  logout_urls                          = var.logout_urls_module_var
+  callback_urls                        = var.callback_urls_module
+  logout_urls                          = var.logout_urls_module
   access_token_validity                = 24
   id_token_validity                    = 12
   refresh_token_validity               = 1
@@ -89,8 +89,8 @@ resource "aws_cognito_user_pool_client" "main" {
 }
 
 resource "aws_route53_record" "cognito_auth_custom_domain" {
-  zone_id = var.route53_zone_id_var
-  name    = var.cognito_domain_module_var
+  zone_id = var.route53_zone_id
+  name    = var.cognito_domain_module
   type    = "A"
   alias {
     name = "${aws_cognito_user_pool_domain.main.cloudfront_distribution_arn}"
@@ -106,7 +106,7 @@ resource "aws_route53_record" "cognito_auth_custom_domain" {
 
 resource "aws_cognito_identity_provider" "saml" {
   user_pool_id  = aws_cognito_user_pool.main.id
-  provider_name = var.provider_name_module_var
+  provider_name = var.provider_name_module
   provider_type = "SAML"
 
   attribute_mapping = {
@@ -118,7 +118,7 @@ resource "aws_cognito_identity_provider" "saml" {
   }
 
   provider_details = {
-    MetadataURL = var.sp_metadata_url_module_var
+    MetadataURL = var.sp_metadata_url_module
   }
 }
 

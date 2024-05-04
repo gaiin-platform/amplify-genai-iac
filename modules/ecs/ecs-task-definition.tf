@@ -19,58 +19,58 @@ resource "aws_ecs_task_definition" "app_task" {
       ]
     secrets = [
       {name      = "AVAILABLE_MODELS"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:AVAILABLE_MODELS::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:AVAILABLE_MODELS::"
       },
       {name      = "AZURE_API_NAME"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:AZURE_API_NAME::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:AZURE_API_NAME::"
       },
       {name      = "AZURE_DEPLOYMENT_ID"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:AZURE_DEPLOYMENT_ID::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:AZURE_DEPLOYMENT_ID::"
       },
       {name      = "API_BASE_URL"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:API_BASE_URL::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:API_BASE_URL::"
       },
       {name      = "CHAT_ENDPOINT"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:CHAT_ENDPOINT::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:CHAT_ENDPOINT::"
       },
       {name      = "COGNITO_CLIENT_ID"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:COGNITO_CLIENT_ID::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_CLIENT_ID::"
       },
       {name      = "COGNITO_ISSUER"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:COGNITO_ISSUER::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_ISSUER::"
       },
       {name      = "DEFAULT_MODEL"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:DEFAULT_MODEL::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:DEFAULT_MODEL::"
       },
       {name      = "COGNITO_DOMAIN"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:COGNITO_DOMAIN::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_DOMAIN::"
       },
       {name      = "DEFAULT_FUNCTION_CALL_MODEL"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:DEFAULT_FUNCTION_CALL_MODEL::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:DEFAULT_FUNCTION_CALL_MODEL::"
       },
       {name      = "COGNITO_CLIENT_SECRET"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:COGNITO_CLIENT_SECRET::"
       },
       {name      = "MIXPANEL_TOKEN"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:MIXPANEL_TOKEN::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:MIXPANEL_TOKEN::"
       },
       {name      = "NEXTAUTH_SECRET"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:NEXTAUTH_SECRET::"
       },
       {name      = "NEXTAUTH_URL"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:NEXTAUTH_URL::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:NEXTAUTH_URL::"
       },
       {name      = "OPENAI_API_HOST"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:OPENAI_API_HOST::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_HOST::"
       },
       {name      = "OPENAI_API_KEY"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:OPENAI_API_KEY::"
       },
       {name      = "OPENAI_API_TYPE"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:OPENAI_API_TYPE::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_TYPE::"
       },
       {name      = "OPENAI_API_VERSION"
-        valueFrom = "${aws_secretsmanager_secret.env_vars.arn}:OPENAI_API_VERSION::"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_VERSION::"
       }
 
     ]
@@ -141,7 +141,7 @@ resource "aws_iam_policy" "secret_access_policy" {
           // Add other actions as needed.
         ],
         Resource  = [
-          aws_secretsmanager_secret.env_vars.arn,
+          aws_secretsmanager_secret.envs.arn,
           aws_secretsmanager_secret.my_secrets.arn
         ]
       }

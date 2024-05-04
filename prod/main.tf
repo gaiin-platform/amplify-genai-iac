@@ -49,8 +49,8 @@ module "ecs" {
   secrets                      = var.secrets
   ecr_image_repository_url     = "${module.ecr.ecr_image_repository_url}:latest"
   ecr_image_repository_arn     = module.ecr.ecr_image_repository_arn
-  env_vars                     = var.env_vars
-  env_vars_name                = "${local.env}-${var.env_vars_name}"
+  envs                     = var.envs
+  envs_name                = "${local.env}-${var.envs_name}"
   ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
   ecs_scale_up_alarm_description = "${local.env}-${var.ecs_scale_up_alarm_description}"
   ecs_alarm_email              = "amplify+prod@vanderbilt.edu"
@@ -60,13 +60,13 @@ module "ecs" {
 
 module "cognito_pool" {
   source                     = "../../modules/cognito_pool"
-  cognito_domain_module_var  = "${local.env}-${var.cognito_domain_module_var}"
-  userpool_name_module_var   = "${local.env}-${var.userpool_name_module_var}"
-  provider_name_module_var   = var.provider_name_module_var
-  certificate_arn_module_var = var.certificate_arn_module_var
-  sp_metadata_url_module_var = var.sp_metadata_url_module_var
-  callback_urls_module_var   = ["https://${local.env}-ecs.vanderbilt.ai/auth/callback/cognito", "http://localhost:3000/auth/callback/cognito"]
-  logout_urls_module_var     = ["https://${local.env}-ecs.vanderbilt.ai/signout", "http://localhost:3000/signout"]
+  cognito_domain_module  = "${local.env}-${var.cognito_domain_module}"
+  userpool_name_module   = "${local.env}-${var.userpool_name_module}"
+  provider_name_module   = var.provider_name_module
+  certificate_arn_module = var.certificate_arn_module
+  sp_metadata_url_module = var.sp_metadata_url_module
+  callback_urls_module   = ["https://${local.env}-ecs.vanderbilt.ai/auth/callback/cognito", "http://localhost:3000/auth/callback/cognito"]
+  logout_urls_module     = ["https://${local.env}-ecs.vanderbilt.ai/signout", "http://localhost:3000/signout"]
 }
 
 

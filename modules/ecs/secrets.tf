@@ -1,11 +1,11 @@
-resource "aws_secretsmanager_secret" "env_vars" {
-  name        = var.env_vars_name
+resource "aws_secretsmanager_secret" "envs" {
+  name        = var.envs_name
   description = "Store environment and application specific secrets"
 }
 
-resource "aws_secretsmanager_secret_version" "env_vars_version" {
-  secret_id     = aws_secretsmanager_secret.env_vars.id
-  secret_string = jsonencode(var.env_vars)
+resource "aws_secretsmanager_secret_version" "envs_version" {
+  secret_id     = aws_secretsmanager_secret.envs.id
+  secret_string = jsonencode(var.envs)
 }
 
 resource "aws_secretsmanager_secret" "my_secrets" {

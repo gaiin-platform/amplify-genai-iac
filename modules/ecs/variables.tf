@@ -144,12 +144,12 @@ variable "secrets" {
   sensitive   = true
 }
 
-variable "env_vars_name" {
+variable "envs_name" {
   description = "The name of the environment variables container in AWS Secrets Manager"
   type        = string
   
 }
-variable "env_vars" {
+variable "envs" {
   description = "A map of the secrets to store"
   type        = map(string)
     default = {
