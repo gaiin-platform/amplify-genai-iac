@@ -33,3 +33,4 @@ override.tf.json
 .terraformrc
 terraform.rc
 state.tf
+backend.tf
