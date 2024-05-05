@@ -19,9 +19,7 @@ variable "scan_on_push" {
 }
 
 #ALB Variables
-variable "vpc_id" {
-  description = "The VPC ID where the ALB will be deployed"
-}
+
 
 variable "alb_name" {
   description = "The name of the ALB"
@@ -40,20 +38,12 @@ variable "root_redirect" {
   
 }
 
-variable "hosted_zone_id" {
+variable "route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
 
-variable "alb_logging_bucket" {
-  description = "ALB Access Log Bucket"
-  type        = string
-}
 
-variable "public_subnet_ids" {
-  description = "The list of subnet IDs for the ALB"
-  type        = list(string)
 
-}
 variable "target_group_name" {
   description = "The name of the target group"
   type        = string
@@ -125,10 +115,6 @@ variable "service_name" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "The subnet IDs to launch resources in"
-  type        = list(string)
-}
 variable "container_name" {
   description = "The name of the container within the task"
   type        = string
@@ -160,11 +146,6 @@ variable "scale_in_cooldown" {
 variable "scale_out_cooldown" {
   description = "The amount of time, in seconds, after a scale out activity completes before another scale out activity can start"
   type        = number
-}
-
-variable "tg_arn" {
-  description = "The ARN of the target group with which to register targets"
-  type        = string
 }
 
 variable "secret_name" {
@@ -291,46 +272,103 @@ variable "region" {
 
 variable "alb_sg_id" {
   description = "The ID of the security group associated with the ALB"
-  type        = string
-  default     = ""
+  type        = list(string)
+  default     = [""]
 
 }
 
-variable "cognito_domain_module" {
+variable "cognito_domain" {
   description = "Enter a string. Must be alpha numeric 3-63 in length."
   type        = string
 }
 
-variable "userpool_name_module" {
+variable "userpool_name" {
   description = "Enter name for Userpool"
   type        = string
 }
 
-variable "provider_name_module" {
+variable "provider_name" {
   description = "Enter name for Userpool"
   type        = string
 }
 
-variable "certificate_arn_module" {
-  description = "Enter the Certificate arn used for Cognito Domain"
-  type        = string
-}
-
-variable "sp_metadata_url_module" {
+variable "sp_metadata_url" {
   description = "Enter the SAML provider metadata file location"
   type        = string
 }
 
-variable "callback_urls_module" {
+variable "callback_urls" {
   description = "Enter Call Back Urls for SSO"
   type        = list(string)
 }
 
-variable "logout_urls_module" {
+variable "logout_urls" {
   description = "Enter Logout Urls for SSO"
   type        = list(string)
 
 }
+
+variable "create_pre_auth_lambda" {
+  description = "Boolean for Pre auth lambda creation"
+  type        = bool
+  default     = false
+}
+
+variable "use_saml_idp" {
+  description = "Boolean for create SAML IDP on Cognito Pool"
+  type        = bool
+  default     = false
+}
+
+variable "ssl_certificate_arn" {
+  description = "The ARN of the SSL certificate"
+  type        = string
+}
+
+
+ variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+}
+
+variable "public_subnet_cidrs" {
+  description = "List of CIDR blocks for the public subnets"
+  type        = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  description = "List of CIDR blocks for the private subnets"
+  type        = list(string)
+}
+
+variable "alb_logging_bucket_name" {
+  description = "ALB Logging Bucket Name"
+  type        = string
+}
+
+variable "vpc_id" {
+  description = "VPC ID for ECS Deployment"
+  type        = string
+  default     = ""
+}
+
+variable "target_group_arn" {
+  description = "Target Group Arn on Loadbalancer"
+  type        = string
+  default     = ""
+}
+
+ variable "ecr_image_repository_arn" {
+  description = "Arn for ECR Image Repo"
+  type        = string
+  default     = ""
+ }
+ 
+ variable "ecr_image_repository_url" {
+  description = "URL for ECR Image Repo"
+  type        = string
+  default     = ""
+ }
 
 
 

@@ -1,11 +1,4 @@
-variable "vpc_id" {
-  description = "The VPC ID where the ALB will be deployed"
-}
 
-variable "public_subnet_ids" {
-  description = "The list of subnet IDs for the ALB"
-  type        = list(string)
-}
 
 variable "alb_name" {
   description = "The name of the ALB"
@@ -24,14 +17,10 @@ variable "root_redirect" {
 }
 
 
-variable "hosted_zone_id" {
+variable "route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
 
- variable "alb_logging_bucket" {
-   description = "ALB Access Log Bucket"
-   type        = string
- }
 
 variable "target_group_name" {
   description = "The name of the target group for the production environment"
@@ -50,6 +39,27 @@ variable "target_group_name" {
    default     = "gen-ai-alb-sg"
    
  }
+
+ variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+}
+
+variable "public_subnet_cidrs" {
+  description = "List of CIDR blocks for the public subnets"
+  type        = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  description = "List of CIDR blocks for the private subnets"
+  type        = list(string)
+}
+
+
+variable "alb_logging_bucket_name" {
+  description = "ALB Logging Bucket Name"
+  type        = string
+}
 
 
 

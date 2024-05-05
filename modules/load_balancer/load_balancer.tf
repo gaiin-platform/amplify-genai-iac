@@ -1,6 +1,12 @@
 
 
+# Get a list of all available Availability Zones in the region
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
+# Get Caller Account Identity
+data "aws_caller_identity" "current" {}
 
 resource "aws_acm_certificate" "ssl_san_cert" {
   count             = var.root_redirect ? 1:0
@@ -35,14 +41,15 @@ resource "aws_route53_record" "san_cert_validation" {
   allow_overwrite = true
   name            = each.value.name
   type            = each.value.type
-  zone_id         = var.hosted_zone_id
+  zone_id         = var.route53_zone_id
   records         = [each.value.record]
   ttl             = 60
 }
 
 resource "aws_acm_certificate" "ssl_cert" {
   count             = var.root_redirect ? 0:1
-  domain_name       = var.domain_name
+  domain_name       = "*.${var.domain_name}"
+  subject_alternative_names = [var.domain_name]
   validation_method = "DNS"
 
   lifecycle {
@@ -73,14 +80,60 @@ resource "aws_route53_record" "cert_validation" {
   allow_overwrite = true
   name            = each.value.name
   type            = each.value.type
-  zone_id         = var.hosted_zone_id
+  zone_id         = var.route53_zone_id
   records         = [each.value.record]
   ttl             = 60
 }
+
+
+
+# Create the VPC
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name = "main-vpc"
+  }
+}
+# Create an Internet Gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+# Create public subnets in two different AZs
+resource "aws_subnet" "public" {
+  count                   = length(var.public_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "public-subnet-${count.index}"
+  }
+}
+
+# Create private subnets in the same AZs as the public subnets
+resource "aws_subnet" "private" {
+  count             = length(var.private_subnet_cidrs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "private-subnet-${count.index}"
+  }
+}
+
 resource "aws_security_group" "alb_sg" {
   name        = var.alb_security_group_name
   description = "Security group for ALB"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port   = 80
@@ -106,6 +159,34 @@ resource "aws_security_group" "alb_sg" {
     description = "Allow all outbound traffic"
   }
 }
+# S3 Bucket for storing ALB access logs
+resource "aws_s3_bucket" "alb_access_logs" {
+  bucket = var.alb_logging_bucket_name
+
+  tags = {
+    Name = "alb-access-logs"
+  }
+}
+
+resource "aws_s3_bucket_policy" "alb_access_logs_policy" {
+  bucket = aws_s3_bucket.alb_access_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement =  [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::127311923021:root"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "${aws_s3_bucket.alb_access_logs.arn}/AWSLogs/*"
+      
+    }
+  ]
+  })
+}
+
 
 
 resource "aws_lb" "alb" {
@@ -113,32 +194,35 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = var.public_subnet_ids
+  subnets            = aws_subnet.public[*].id
 
-  enable_deletion_protection = false
-
+  enable_deletion_protection = false   
   access_logs {
-    bucket  = var.alb_logging_bucket
+    bucket  = aws_s3_bucket.alb_access_logs.bucket
     enabled = true
   }
 
-  depends_on = [aws_acm_certificate_validation.ssl_cert_validation]
+  depends_on = [aws_acm_certificate_validation.ssl_cert_validation, aws_s3_bucket.alb_access_logs]
 }
 
-#Create 2 Route53 records if root_redirect is false  CNAME for e.g. alpha.vanderbilt.ai or dev.vanderbilt.ai
+#Create 2 Route53 records if root_redirect is false  CNAME for e.g. alpha.vanderbilt.ai or dev.vanderbilt.ai - Adjusted to Alias because subdomain is delegated. 
 resource "aws_route53_record" "root_cname" {
   count = var.root_redirect ? 0:1
-  zone_id = var.hosted_zone_id
+  zone_id = var.route53_zone_id
   name    = var.domain_name
-  type    = "CNAME"
-  ttl     = "300"
-  records = [aws_lb.alb.dns_name]
+  type    = "A" 
+    
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = true # Set to false if you do not want to evaluate the health of the target
+  }
 }
 
 #Create 2 Route53 records if root_redirect is true Alias record for root domain and CNAME for www
 resource "aws_route53_record" "root_alias" {
   count   = var.root_redirect ? 1 : 0
-  zone_id = var.hosted_zone_id
+  zone_id = var.route53_zone_id
   name    = var.domain_name
   type    = "A" # Alias records for root domain should be type "A" or "AAAA" (for IPv6)
 
@@ -151,7 +235,7 @@ resource "aws_route53_record" "root_alias" {
 
 resource "aws_route53_record" "www_cname" {
   count = var.root_redirect ? 1:0
-  zone_id = var.hosted_zone_id
+  zone_id = var.route53_zone_id
   name    = "www.${var.domain_name}"
   type    = "CNAME"
   ttl     = "300"
@@ -216,7 +300,7 @@ resource "aws_lb_target_group" "tg" {
   name     = var.target_group_name
   port     = var.target_group_port
   protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  vpc_id   = aws_vpc.main.id
   target_type = "ip"
 
   health_check {

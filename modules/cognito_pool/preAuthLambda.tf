@@ -1,17 +1,20 @@
+
 resource "aws_lambda_function" "pre_auth_trigger" {
+  count = var.create_pre_auth_lambda ? 1 : 0
+
   function_name = "myPreAuthTriggerFunction"
   handler       = "preAuthLambda.lambda_handler" # Replace with the actual handler
-  role          = aws_iam_role.lambda_pre_auth_exec_role.arn
+  role          = aws_iam_role.lambda_pre_auth_exec_role[0].arn
   runtime       = "python3.10"
 
   # Define the path to the ZIP file containing your Lambda code
-  filename      = "../../files/preAuthLambda.zip"
+  filename      = "../files/preAuthLambda.zip"
 
-  source_code_hash = filebase64sha256("../../files/preAuthLambda.zip")
+  source_code_hash = filebase64sha256("../files/preAuthLambda.zip")
 }
 
-
 resource "aws_iam_policy" "lambda_cognito_policy" {
+  count = var.create_pre_auth_lambda ? 1 : 0  
   name        = "lambda_cognito_policy"
   description = "IAM policy for Lambda function to interact with Cognito and CloudWatch Logs"
 
@@ -39,6 +42,7 @@ resource "aws_iam_policy" "lambda_cognito_policy" {
 }
 
 resource "aws_iam_role" "lambda_pre_auth_exec_role" {
+  count = var.create_pre_auth_lambda ? 1 : 0  
   name = "lambda_exec_role"
 
   assume_role_policy = jsonencode({
@@ -56,14 +60,18 @@ resource "aws_iam_role" "lambda_pre_auth_exec_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_cognito_policy_attachment" {
-  role       = aws_iam_role.lambda_pre_auth_exec_role.name
-  policy_arn = aws_iam_policy.lambda_cognito_policy.arn
+  count = var.create_pre_auth_lambda ? 1 : 0
+
+  role       = aws_iam_role.lambda_pre_auth_exec_role[0].name
+  policy_arn = aws_iam_policy.lambda_cognito_policy[0].arn
 }
 
 resource "aws_lambda_permission" "allow_cognito_to_invoke_pre_auth" {
+  count = var.create_pre_auth_lambda ? 1 : 0
+
   statement_id  = "AllowExecutionFromCognito"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.pre_auth_trigger.function_name
+  function_name = aws_lambda_function.pre_auth_trigger[0].function_name
   principal     = "cognito-idp.amazonaws.com"
 
   # The source ARN is the ARN of the Cognito user pool that will invoke the Lambda function.

@@ -20,12 +20,12 @@ resource "aws_ecs_service" "service" {
   health_check_grace_period_seconds = 900
 
   network_configuration {
-    subnets          = var.subnet_ids
+    subnets          = var.private_subnet_ids
     security_groups  = [aws_security_group.ecs_tasks_sg.id]
   }
 
   load_balancer {
-    target_group_arn = var.tg_arn
+    target_group_arn = var.target_group_arn
     container_name   = var.container_name
     container_port   = var.container_port
   }
@@ -135,12 +135,12 @@ resource "aws_security_group" "ecs_tasks_sg" {
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
-  # Ingress rule. Ensure aws_security_group.alb_sg exists or is replaced with the correct reference.
+  # Ingress rule. Ref alb_sg_id or replace with the correct reference.
   ingress {
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [var.alb_sg_id]
+    security_groups = var.alb_sg_id
   }
   ingress {
     from_port   = 443

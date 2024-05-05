@@ -48,16 +48,6 @@ variable "ecr_repo_access_policy_name" {
   
 }
 
-variable "subnet_ids" {
-  description = "The subnet IDs to launch resources in"
-  type        = list(string)
-}
-
-variable "vpc_id" {
-  description = "The ID of the VPC"
-  type        = string
-}
-
 variable "container_name" {
   description = "The name of the container within the task"
   type        = string
@@ -116,16 +106,6 @@ variable "scale_out_cooldown" {
    type        = string
    
  }
-variable "tg_arn" {
-  description = "The ARN of the target group with which to register targets"
-  type        = string
-}
-
-variable "alb_sg_id" {
-  description = "The security group ID of the Application Load Balancer"
-  type        = string
-  
-}
 
 variable "secret_name" {
   description = "The name of the secrets container in AWS Secrets Manager"
@@ -202,18 +182,6 @@ variable "task_execution_role_name" {
   
 }
 
-variable "ecr_image_repository_url" {
-  description = "The URL of the ECR image repository"
-  type        = string
-  
-}
-
-variable "ecr_image_repository_arn" {
-  description = "The ARN of the ECR image repository"
-  type        = string
-  
-}
-
 variable "region" {
   description = "The AWS region"
   type        = string
@@ -221,4 +189,34 @@ variable "region" {
 
 }
 
+variable "vpc_id" {
+  description = "VPC ID for ECS Deployment"
+  type        = string
+}
+
+variable "alb_sg_id" {
+  description = "ALB Security Group ID for inbound traffic"
+  type        = list(string)
+}
+
+variable "private_subnet_ids" {
+  description = "Private Subnet CIDR List"
+  type        = list(string)
+}
+
+variable "target_group_arn" {
+  description = "Target Group Arn on Loadbalancer"
+  type        = string
+}
+
+variable "ecr_image_repository_arn" {
+  description = " Arn of ECR Image Repo"
+  type        = string
+}
+
+ variable "ecr_image_repository_url" {
+  description = "URL for ECR Image Repo"
+  type        = string
+  default     = ""
+ }
 

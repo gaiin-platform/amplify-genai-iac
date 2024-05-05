@@ -31,8 +31,7 @@ module "load_balancer" {
   alb_name                = "${local.env}-${var.alb_name}"
   alb_logging_bucket      = var.alb_logging_bucket
   domain_name             = "${local.env}-${var.domain_name}"
-  hosted_zone_id          = var.hosted_zone_id
-  vpc_id                  = var.vpc_id
+  hosted_zone_id          = var.route53_zone_id
   public_subnet_ids       = var.public_subnet_ids
   target_group_name       = "${local.env}-${var.target_group_name}-${var.target_group_port}"
   target_group_port       = var.target_group_port
@@ -81,13 +80,15 @@ The Cognito User Pool module provisions the following resources:
 module "cognito_user_pool" {
   source = "../modules/cognito_user_pool"
 
-  cognito_domain_module  = ""
-  userpool_name_module   = ""
-  provider_name_module   = ""
-  certificate_arn_module = ""
-  sp_metadata_url_module = ""
-  callback_urls_module   = [""]
-  logout_urls_module     = [""]
+  cognito_domain         = ""
+  userpool_name          = ""
+  provider_name          = ""
+  certificate_arn        = ""
+  sp_metadata_url        = ""
+  callback_urls          = [""]
+  logout_urls            = [""]
+  create_pre_auth_lambda = false
+  use_saml_idp           = false
   route53_zone_id        = "" # Replace with your Route 53 hosted zone ID
 }
 ```
