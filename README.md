@@ -1,4 +1,8 @@
+# Please see: https://www.amplifygenai.org
 
+# Authors
+
+Allen Karns, Jules White, Karely Rodriguez, Max Moundas
 
 # AWS Infrastructure for Amplify as Terraform Modules
 
