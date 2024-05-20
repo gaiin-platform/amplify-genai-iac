@@ -30,6 +30,9 @@ resource "aws_ecs_task_definition" "app_task" {
       {name      = "API_BASE_URL"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:API_BASE_URL::"
       },
+      {name      = "ASSISTANTS_API_BASE"
+        valueFrom = "${aws_secretsmanager_secret.envs.arn}:ASSISTANTS_API_BASE::"
+      },
       {name      = "CHAT_ENDPOINT"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:CHAT_ENDPOINT::"
       },

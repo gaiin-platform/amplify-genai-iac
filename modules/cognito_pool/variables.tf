@@ -59,4 +59,14 @@ variable "ssl_certificate_arn" {
 }
 
 
+variable "disable_public_signup" {
+  description = "Whether to disable public sign-up in the hosted UI"
+  type        = bool
+  default     = true
+}
+
+
+variable "cognito_route53_zone_id" {
+  description = "The Route53 hosted zone ID for the domain"
+}
 

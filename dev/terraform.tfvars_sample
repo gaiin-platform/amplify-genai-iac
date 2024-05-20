@@ -1,0 +1,107 @@
+# terraform.tfvars
+
+# Load Balancer Vars
+public_subnet_cidrs     = ["172.1.0.0/23", "172.1.2.0/23"]
+private_subnet_cidrs    = ["172.1.4.0/23", "172.1.8.0/23"]
+vpc_cidr                = "172.1.0.0/16"
+vpc_name                = "main-vpc"
+alb_name                = ""
+domain_name             = ""
+app_route53_zone_id     = ""
+target_group_port       = 3000 #Next JS app runs on port 3000 if port has to change, update container build
+target_group_name       = ""
+alb_security_group_name = ""
+root_redirect           = false
+alb_logging_bucket_name = ""
+
+
+#cognito vars
+cognito_domain          = "auth.yourdomain.here"
+cognito_route53_zone_id = ""
+userpool_name          = ""
+provider_name          = ""
+sp_metadata_url        = ""
+callback_urls          = [""]
+logout_urls            = [""]
+create_pre_auth_lambda = false
+use_saml_idp           = false
+ssl_certificate_arn    = ""
+disable_public_signup  = true #If this is changed to false public sign up through cognito hosted UI will display
+
+
+
+# Variables with defaults don't need to be specified unless you want to override the default
+#ECR Vars
+ecr_repo_name        = ""
+image_tag_mutability = "IMMUTABLE"
+scan_on_push         = false
+
+
+#ECS Vars
+desired_count                    = 2
+cluster_name                     = ""
+service_name                     = ""
+container_port                   = 3000
+max_capacity                     = 100
+min_capacity                     = 1
+scale_target_value               = 75
+scale_in_cooldown                = 300
+scale_out_cooldown               = 300
+cloudwatch_log_group_name        = ""
+cloudwatch_policy_name           = ""
+cloudwatch_log_stream_prefix     = "ecs"
+secret_access_policy_name        = ""
+ecs_alarm_email                  = ""
+ecs_scale_down_alarm_description = "scaling up due to high CPU utilization"
+ecs_scale_up_alarm_description   = "scaling down due to low CPU utilization"
+
+#Task Definition Vars
+container_cpu            = 1024
+container_memory         = 4096
+task_name                = "gen-ai-app-task"
+task_execution_role_name = "gen-ai-app-task-execution-role"
+task_role_name           = "gen-ai-app-task-role"
+region                   = "us-east-1"
+container_name           = "amplifyApp"
+
+# Secrets Manager App Secrets - if you change anything here you'll need to update that task Definition
+secret_name = "amplify-app-secrets"
+secrets = {
+  COGNITO_CLIENT_SECRET = ""
+  OPENAI_API_KEY        = ""
+  NEXTAUTH_SECRET       = ""
+}
+# Secrets Manager App Vars- if you change anything here you'll need to update that task Definition
+envs_name = "amplify-app-vars"
+envs = {
+  API_BASE_URL                = ""
+  ASSISTANTS_API_BASE         = ""
+  AVAILABLE_MODELS            = "gpt-35-turbo,gpt-4-1106-Preview"
+  AZURE_API_NAME              = "openai"
+  AZURE_DEPLOYMENT_ID         = "gpt-4"
+  CHAT_ENDPOINT               = ""
+  COGNITO_CLIENT_ID           = ""
+  COGNITO_DOMAIN              = ""
+  COGNITO_ISSUER              = ""
+  DEFAULT_MODEL               = "gpt-35-turbo"
+  DEFAULT_FUNCTION_CALL_MODEL = "gpt-4-1106-Preview"
+  MIXPANEL_TOKEN              = ""
+  NEXTAUTH_SECRET             = "fkjf8ghrkr0293844mg9723t52ghk" #any random value
+  NEXTAUTH_URL                = "https://innovation.vanderbilt.ai" #any url at your domain
+  OPENAI_API_HOST             = ""
+  OPENAI_API_TYPE             = "azure"
+  OPENAI_API_VERSION          = "2023-12-01-preview"
+
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -6,15 +6,15 @@ Allen Karns, Jules White, Karely Rodriguez, Max Moundas
 
 # AWS Infrastructure for Amplify as Terraform Modules
 
-This repository contains Terraform modules for setting up AWS infrastructure components for a scalable and secure web application. The infrastructure includes a load balancer, an ECR repository, and an ECS cluster with Fargate, along with necessary security and monitoring configurations.
+This repository contains very opionated Terraform modules for setting up AWS infrastructure components for a scalable infrastructure to deploy AmplifyGenAI into. The infrastructure includes a load balancer, an ECR repository, and an ECS cluster with Fargate, along with a basic ecr deployment pipeline.
 
 ## Modules Overview
 
 The Terraform configuration is organized into modules for reusability and manageability:
 
-- **Load Balancer Module**: Sets up an Application Load Balancer (ALB), target groups, and necessary Route 53 records.
+- **Load Balancer Module**: Sets up an Application Load Balancer (ALB), target groups, and necessary Route 53 records. It also manages SSL certificate creation and validation, VPC and subnet creation, and security group rules.
 - **ECR Module**: Creates an Elastic Container Registry (ECR) for storing Docker images.
-- **ECS Module**: Provisions an ECS cluster, task definitions, services, IAM roles, CloudWatch log groups, and Auto Scaling configurations.
+- **ECS Module**: Provisions an ECS cluster, task definitions, services, IAM roles, CloudWatch log groups, and Auto Scaling configurations. It also manages task execution roles, task roles, CloudWatch alarms, and Service Auto Scaling policies.
 - **Cognito User Pool Module**: Configures a Cognito User Pool for user authentication, along with a user pool client, domain, and identity provider.
 
 ## Prerequisites
@@ -32,20 +32,23 @@ To set up the load balancer, include the following module configuration in your 
 ```hcl
 module "load_balancer" {
   source                  = "../modules/load_balancer"
+  vpc_cidr                = var.vpc_cidr
+  vpc_name                = "${local.env}-${var.vpc_name}"
+  private_subnet_cidrs    = var.private_subnet_cidrs
+  public_subnet_cidrs     = var.public_subnet_cidrs
+  alb_logging_bucket_name = "${local.env}-${var.alb_logging_bucket_name}"
   alb_name                = "${local.env}-${var.alb_name}"
-  alb_logging_bucket      = var.alb_logging_bucket
   domain_name             = "${local.env}-${var.domain_name}"
-  hosted_zone_id          = var.route53_zone_id
-  public_subnet_ids       = var.public_subnet_ids
   target_group_name       = "${local.env}-${var.target_group_name}-${var.target_group_port}"
   target_group_port       = var.target_group_port
   alb_security_group_name = "${local.env}-${var.alb_security_group_name}"
   root_redirect           = false
+  app_route53_zone_id     = var.app_route53_zone_id
+  region                  = var.region
 }
 ```
 
 ### ECR Module
-
 To create an ECR repository, use the following module configuration:
 
 ```hcl
@@ -56,7 +59,6 @@ module "ecr" {
 ```
 
 ### ECS Module
-
 To provision the ECS cluster and related resources, include the following module configuration:
 
 ```hcl
@@ -64,36 +66,62 @@ module "ecs" {
   source                           = "../modules/ecs"
   depends_on                       = [module.load_balancer]
   cluster_name                     = "${local.env}-${var.cluster_name}"
-  // ... (Include all other ECS module variables as shown in the provided example)
-}
+  container_cpu                    = var.container_cpu
+  container_memory                 = var.container_memory
+  service_name                     = "${local.env}-${var.service_name}"
+  min_capacity                     = var.min_capacity
+  cloudwatch_log_group_name        = "${local.env}-${var.cloudwatch_log_group_name}"
+  cloudwatch_log_stream_prefix     = var.cloudwatch_log_stream_prefix
+  cloudwatch_policy_name           = "${local.env}-${var.cloudwatch_policy_name}"
+  secret_access_policy_name        = "${local.env}-${var.secret_access_policy_name}"
+  container_exec_policy_name       = "${local.env}-${var.container_exec_policy_name}"
+  container_port                   = var.container_port
+  task_name                        = "${local.env}-${var.task_name}"
+  task_role_name                   = "${local.env}-${var.task_role_name}"
+  task_execution_role_name         = "${local.env}-${var.task_execution_role_name}"
+  container_name                   = "${local.env}-${var.container_name}"
+  ecr_repo_access_policy_name      = "${local.env}-${var.ecr_repo_access_policy_name}"
+  desired_count                    = var.desired_count
+  max_capacity                     = var.max_capacity
+  scale_in_cooldown                = var.scale_in_cooldown
+  scale_out_cooldown               = var.scale_out_cooldown
+  scale_target_value               = var.scale_target_value
+  secret_name                      = "${local.env}-${var.secret_name}"
+  secrets                          = var.secrets
+  envs                             = var.envs
+  envs_name                        = "${local.env}-${var.envs_name}"
+  ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
+  ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description"
+  ecs_alarm_email                  = "amplify+innovation@vanderbilt.edu"
+  ecr_image_repository_arn         = module.ecr.ecr_image_repository_arn
+  ecr_image_repository_url         = module.ecr.ecr_image_repository_url
+  vpc_id                           = module.load_balancer.vpc_id
+  private_subnet_ids               = module.load_balancer.private_subnet_ids
+  target_group_arn                 = module.load_balancer.target_group_arn
+  alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
+  }
 ```
 
-## Cognito User Pool Module
+### Cognito User Pool Module
 
-The Cognito User Pool module provisions the following resources:
-
-- **AWS Cognito User Pool**: Manages user accounts and authentication within your application.
-- **AWS Cognito User Pool Domain**: Associates a custom domain with the user pool.
-- **AWS Cognito User Pool Client**: Configures client settings for the user pool.
-- **AWS Route 53 Record**: Sets up a DNS record for the Cognito custom domain.
-- **AWS Cognito Identity Provider**: Configures a SAML-based identity provider for the user pool.
-
-### Example Usage
+To configure a Cognito User Pool for user authentication, use the following module configuration:
 
 ```hcl
-module "cognito_user_pool" {
-  source = "../modules/cognito_user_pool"
-
-  cognito_domain         = ""
-  userpool_name          = ""
-  provider_name          = ""
-  certificate_arn        = ""
-  sp_metadata_url        = ""
-  callback_urls          = [""]
-  logout_urls            = [""]
-  create_pre_auth_lambda = false
-  use_saml_idp           = false
-  route53_zone_id        = "" # Replace with your Route 53 hosted zone ID
+module "cognito_pool" {
+  source                  = "../modules/cognito_pool"
+  depends_on              = [module.load_balancer]
+  ssl_certificate_arn     = module.load_balancer.ssl_certificate_arn
+  cognito_domain          = "${local.env}-${var.cognito_domain}"
+  userpool_name           = "${local.env}-${var.userpool_name}"
+  provider_name           = "${local.env}-${var.provider_name}"
+  sp_metadata_url         = var.sp_metadata_url
+  callback_urls           = ["https://{local.env}-${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
+  logout_urls             = ["https://{local.env}-${var.domain_name}", "http://localhost:3000"]
+  create_pre_auth_lambda  = var.create_pre_auth_lambda
+  use_saml_idp            = var.use_saml_idp
+  domain_name             = "${local.env}-${var.domain_name}"
+  cognito_route53_zone_id = var.cognito_route53_zone_id
+  disable_public_signup   = var.disable_public_signup
 }
 ```
 

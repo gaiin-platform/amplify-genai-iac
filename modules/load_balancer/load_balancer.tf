@@ -41,7 +41,7 @@ resource "aws_route53_record" "san_cert_validation" {
   allow_overwrite = true
   name            = each.value.name
   type            = each.value.type
-  zone_id         = var.route53_zone_id
+  zone_id         = var.app_route53_zone_id
   records         = [each.value.record]
   ttl             = 60
 }
@@ -80,31 +80,25 @@ resource "aws_route53_record" "cert_validation" {
   allow_overwrite = true
   name            = each.value.name
   type            = each.value.type
-  zone_id         = var.route53_zone_id
+  zone_id         = var.app_route53_zone_id
   records         = [each.value.record]
   ttl             = 60
 }
 
 
-
 # Create the VPC
 resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
+  cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
 
   tags = {
-    Name = "main-vpc"
+    Name = var.vpc_name
   }
 }
-# Create an Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "main-igw"
-  }
-}
+
+
 # Create public subnets in two different AZs
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidrs)
@@ -129,6 +123,111 @@ resource "aws_subnet" "private" {
     Name = "private-subnet-${count.index}"
   }
 }
+
+
+resource "aws_eip" "nat" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "nat_gw" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+
+  tags = {
+    Name = "main-nat-gw"
+  }
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+# Update the private route table to use the NAT Gateway for internet-bound traffic
+resource "aws_route" "private_nat_gw" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat_gw.id
+}
+
+
+
+# Create an Internet Gateway
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+
+# Create public route table for the VPC
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+# Create private route table for the VPC
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "private-route-table"
+  }
+}
+
+# Associate public subnets with public route table
+resource "aws_route_table_association" "public" {
+  for_each      = { for idx, subnet in aws_subnet.public : idx => subnet }
+  route_table_id = aws_route_table.public.id
+  subnet_id      = each.value.id
+}
+
+# Ensure the private route table is associated with the private subnets
+resource "aws_route_table_association" "private" {
+  for_each      = { for idx, subnet in aws_subnet.private : idx => subnet }
+  route_table_id = aws_route_table.private.id
+  subnet_id      = each.value.id
+}
+
+# Create an S3 gateway endpoint
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.main.id
+  service_name      = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = [
+    aws_route_table.public.id,
+    aws_route_table.private.id
+  ]
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": ["s3:*"],
+      "Resource": ["arn:aws:s3:::*/*"],
+      "Condition": {
+        "StringEquals": {
+          "aws:sourceVpc": "${aws_vpc.main.id}"
+        }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+
+
+
 
 resource "aws_security_group" "alb_sg" {
   name        = var.alb_security_group_name
@@ -208,7 +307,7 @@ resource "aws_lb" "alb" {
 #Create 2 Route53 records if root_redirect is false  CNAME for e.g. alpha.vanderbilt.ai or dev.vanderbilt.ai - Adjusted to Alias because subdomain is delegated. 
 resource "aws_route53_record" "root_cname" {
   count = var.root_redirect ? 0:1
-  zone_id = var.route53_zone_id
+  zone_id = var.app_route53_zone_id
   name    = var.domain_name
   type    = "A" 
     
@@ -222,7 +321,7 @@ resource "aws_route53_record" "root_cname" {
 #Create 2 Route53 records if root_redirect is true Alias record for root domain and CNAME for www
 resource "aws_route53_record" "root_alias" {
   count   = var.root_redirect ? 1 : 0
-  zone_id = var.route53_zone_id
+  zone_id = var.app_route53_zone_id
   name    = var.domain_name
   type    = "A" # Alias records for root domain should be type "A" or "AAAA" (for IPv6)
 
@@ -235,7 +334,7 @@ resource "aws_route53_record" "root_alias" {
 
 resource "aws_route53_record" "www_cname" {
   count = var.root_redirect ? 1:0
-  zone_id = var.route53_zone_id
+  zone_id = var.app_route53_zone_id
   name    = "www.${var.domain_name}"
   type    = "CNAME"
   ttl     = "300"

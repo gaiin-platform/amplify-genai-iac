@@ -15,3 +15,21 @@ variable "scan_on_push" {
   type        = bool
   default     = true
 }
+
+variable "service_name" {
+  description = "The name of the ECS service"
+  type        = string
+}
+
+variable "cluster_name" {
+  description = "The name of the ECS service"
+  type        = string
+  default     = ""
+}
+
+variable "notification_arn" {
+  description = "SNS Arn for Code Pipeline Notification"
+  type        =  string
+  default     =  ""
+}
+

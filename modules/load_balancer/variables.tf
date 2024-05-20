@@ -17,7 +17,7 @@ variable "root_redirect" {
 }
 
 
-variable "route53_zone_id" {
+variable "app_route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
 
@@ -61,6 +61,17 @@ variable "alb_logging_bucket_name" {
   type        = string
 }
 
+variable "region" {
+  description = "The AWS region"
+  type        = string
+  default     = "us-east-1"
+
+}
+variable "vpc_name" {
+  description = "The name of the VPC"
+  type        = string
+  default     = "main-vpc"
+}
 
 
 
