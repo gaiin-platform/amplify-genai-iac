@@ -112,6 +112,16 @@ variable "secret_name" {
   type        = string
 }
 
+variable "openai_api_key" {
+  description = "The name of the openai_api_key in AWS Secrets Manager"
+  type        = string
+}
+
+variable "openai_endpoints {
+  description = "The name of the openai endpoints in AWS Secrets Manager"
+  type        = string
+}
+
 variable "secrets" {
   description = "A map of the secrets to store"
   type        = map(string)

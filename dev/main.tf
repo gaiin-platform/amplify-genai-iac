@@ -68,6 +68,8 @@ module "ecs" {
   secret_name                      = "${local.env}-${var.secret_name}"
   secrets                          = var.secrets
   envs                             = var.envs
+  openai_api_key_name              = var.openai_api_key_name
+  openai_endpoints_name            = var.openai_endpoints_name
   envs_name                        = "${local.env}-${var.envs_name}"
   ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
   ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description}"
