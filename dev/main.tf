@@ -1,3 +1,7 @@
+module "lambda_layer" {
+  source                  = "../modules/lambda_layer"
+  }
+  
 module "load_balancer" {
   source                  = "../modules/load_balancer"
   vpc_cidr                = var.vpc_cidr

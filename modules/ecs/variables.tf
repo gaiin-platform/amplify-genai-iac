@@ -112,12 +112,12 @@ variable "secret_name" {
   type        = string
 }
 
-variable "openai_api_key" {
+variable "openai_api_key_name" {
   description = "The name of the openai_api_key in AWS Secrets Manager"
   type        = string
 }
 
-variable "openai_endpoints {
+variable "openai_endpoints_name" {
   description = "The name of the openai endpoints in AWS Secrets Manager"
   type        = string
 }
