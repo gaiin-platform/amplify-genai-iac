@@ -266,7 +266,7 @@ resource "random_id" "random" {
 
 # S3 Bucket for storing ALB access logs
 resource "aws_s3_bucket" "alb_access_logs" {
-  bucket = "${var.alb_logging_bucket_name}-${random_id.random.hex}
+  bucket = "${var.alb_logging_bucket_name}-${random_id.random.hex}"
 
   tags = {
     Name = "alb-access-logs"
@@ -275,7 +275,7 @@ resource "aws_s3_bucket" "alb_access_logs" {
 
 resource "aws_s3_bucket_policy" "alb_access_logs_policy" {
   bucket = aws_s3_bucket.alb_access_logs.id
-  depends = [aws_s3_bucket.alb_access_logs.id]
+  depends_on = [aws_s3_bucket.alb_access_logs]
 
   policy = jsonencode({
     Version = "2012-10-17",
