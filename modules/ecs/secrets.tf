@@ -33,6 +33,7 @@ resource "aws_secretsmanager_secret" "openai_endpoints" {
   description = "Store openai endpoints and key"
 }
 
+
 resource "aws_secretsmanager_secret_version" "openai_endpoints_version" {
   secret_id     = aws_secretsmanager_secret.openai_endpoints.id
   secret_string = jsonencode("")

@@ -1,8 +1,12 @@
 #Code pipeline
+# Generate a random id
+resource "random_id" "random" {
+  byte_length = 8
+}
 
 # Access logs S3 bucket
 resource "aws_s3_bucket" "access_logs" {
-  bucket = "${var.service_name}-s3-access-logs"
+  bucket = "${var.service_name}-s3-access-logs-${random_id.random.hex}"
 }
 
 # Access logs bucket policy

@@ -37,3 +37,11 @@ override.tf.json
 terraform.rc
 state.tf
 backend.tf
+
+*-var.yml
+.env*
+*outputs.json
+*.log
+*params.json
+*secret.json
+/install*
