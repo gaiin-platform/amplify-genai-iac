@@ -45,3 +45,5 @@ backend.tf
 *params.json
 *secret.json
 /install*
+*.backend.tf
+*.DS_Store
