@@ -267,6 +267,7 @@ resource "random_id" "random" {
 # S3 Bucket for storing ALB access logs
 resource "aws_s3_bucket" "alb_access_logs" {
   bucket = "${var.alb_logging_bucket_name}-${random_id.random.hex}"
+  force_destroy = true
 
   tags = {
     Name = "alb-access-logs"

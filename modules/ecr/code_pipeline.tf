@@ -7,6 +7,7 @@ resource "random_id" "random" {
 # Access logs S3 bucket
 resource "aws_s3_bucket" "access_logs" {
   bucket = "${var.service_name}-s3-access-logs-${random_id.random.hex}"
+  force_destroy = true
 }
 
 # Access logs bucket policy
@@ -37,6 +38,7 @@ resource "aws_s3_bucket_public_access_block" "access_logs" {
 # CodePipeline Artifacts Store
 resource "aws_s3_bucket" "codepipeline_artifacts" {
   bucket = "${var.service_name}-codepipeline-artifacts"
+  force_destroy = true
 }
 
 # CodePipeline artifacts bucket policy

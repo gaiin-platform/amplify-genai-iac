@@ -47,3 +47,4 @@ backend.tf
 /install*
 *.backend.tf
 *.DS_Store
+*endpoints.json
