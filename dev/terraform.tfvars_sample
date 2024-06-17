@@ -70,7 +70,6 @@ secrets = {
   NEXTAUTH_SECRET       = ""
 }
 
-
 envs_name = "amplify-app-vars"
 envs = {
   API_BASE_URL                = ""

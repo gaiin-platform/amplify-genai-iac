@@ -1,5 +1,5 @@
-
 #ECR Variables
+
 variable "ecr_repo_name" {
   description = "The name of the ECR repository"
   type        = string
@@ -19,7 +19,6 @@ variable "scan_on_push" {
 }
 
 #ALB Variables
-
 
 variable "alb_name" {
   description = "The name of the ALB"
@@ -41,8 +40,6 @@ variable "root_redirect" {
 variable "app_route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
-
-
 
 variable "target_group_name" {
   description = "The name of the target group"
@@ -161,6 +158,7 @@ variable "openai_endpoints_name" {
   description = "The name of the openai endpoints in AWS Secrets Manager"
   type        = string
 }
+
 variable "secrets" {
   description = "A map of the secrets to store"
   type        = map(string)
@@ -199,8 +197,8 @@ variable "secrets" {
 variable "envs_name" {
   description = "The name of the environment variables container in AWS Secrets Manager"
   type        = string
-
 }
+
 variable "envs" {
   description = "A map of the secrets to store"
   type        = map(string)
@@ -227,6 +225,7 @@ variable "envs" {
   }
   sensitive = true
 }
+
 variable "container_cpu" {
   description = "The number of cpu units used by the task"
   type        = number
@@ -240,50 +239,43 @@ variable "container_memory" {
 variable "ecs_alarm_email" {
   description = "The email address to send ECS alarms to"
   type        = string
-
 }
 
 variable "ecs_scale_up_alarm_description" {
   description = "The description for the scale up alarm"
   type        = string
-
 }
 
 variable "ecs_scale_down_alarm_description" {
   description = "The name of the scale up alarm"
   type        = string
-
 }
 
 variable "task_name" {
   description = "The name of the task definition"
   type        = string
-
 }
+
 variable "task_role_name" {
   description = "The name of the task role"
   type        = string
-
 }
 
 variable "task_execution_role_name" {
   description = "The name of the task execution role"
   type        = string
-
 }
 
 variable "region" {
   description = "The AWS region"
   type        = string
   default     = "us-east-1"
-
 }
 
 variable "alb_sg_id" {
   description = "The ID of the security group associated with the ALB"
   type        = list(string)
   default     = [""]
-
 }
 
 variable "cognito_route53_zone_id" {
@@ -388,13 +380,3 @@ variable "vpc_name" {
   type        = string
   default     = "main-vpc"
 }
-
-
-
-
-
-
-
-
-
-

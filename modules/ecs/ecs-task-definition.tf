@@ -13,10 +13,10 @@ resource "aws_ecs_task_definition" "app_task" {
     cpu   = var.container_cpu
     memory = var.container_memory 
     portMappings = [
-        {
-          containerPort = var.container_port
-        }
-      ]
+      {
+        containerPort = var.container_port
+      }
+    ]
     secrets = [
       {name      = "AVAILABLE_MODELS"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:AVAILABLE_MODELS::"
@@ -75,7 +75,6 @@ resource "aws_ecs_task_definition" "app_task" {
       {name      = "OPENAI_API_VERSION"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_VERSION::"
       }
-
     ]
     
     logConfiguration = {
@@ -224,20 +223,20 @@ resource "aws_iam_policy" "container_exec_policy" {
   description = "Policy that grants permissions to exec into running fargate containers"
 
   policy = jsonencode({
-   "Version": "2012-10-17",
-   "Statement": [
-       {
-       "Effect": "Allow",
-       "Action": [
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
             "ssmmessages:CreateControlChannel",
             "ssmmessages:CreateDataChannel",
             "ssmmessages:OpenControlChannel",
             "ssmmessages:OpenDataChannel"
-       ],
-      "Resource": "*"
+        ],
+        "Resource": "*"
       }
-   ]
-})
+    ]
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "container_exec_policy" {

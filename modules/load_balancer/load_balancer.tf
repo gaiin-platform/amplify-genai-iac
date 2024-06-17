@@ -1,5 +1,3 @@
-
-
 # Get a list of all available Availability Zones in the region
 data "aws_availability_zones" "available" {
   state = "available"
@@ -35,6 +33,7 @@ locals {
     }
   } : {}
 }
+
 resource "aws_route53_record" "san_cert_validation" {
   # Use for_each to iterate over the local variable
   for_each = local.san_cert_validation_records
@@ -56,6 +55,7 @@ resource "aws_acm_certificate" "ssl_cert" {
     create_before_destroy = true
   }
 }
+
 resource "aws_acm_certificate_validation" "ssl_cert_validation" {
   count                 = var.root_redirect ? 0:1
   certificate_arn         = aws_acm_certificate.ssl_cert[0].arn
@@ -85,7 +85,6 @@ resource "aws_route53_record" "cert_validation" {
   ttl             = 60
 }
 
-
 # Create the VPC
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
@@ -96,8 +95,6 @@ resource "aws_vpc" "main" {
     Name = var.vpc_name
   }
 }
-
-
 
 # Create public subnets in two different AZs
 resource "aws_subnet" "public" {
@@ -124,7 +121,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-
 resource "aws_eip" "nat" {
   domain = "vpc"
 }
@@ -146,8 +142,6 @@ resource "aws_route" "private_nat_gw" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat_gw.id
 }
-
-
 
 # Create an Internet Gateway
 resource "aws_internet_gateway" "igw" {
@@ -206,28 +200,24 @@ resource "aws_vpc_endpoint" "s3" {
   ]
 
   policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": ["s3:*"],
-      "Resource": ["arn:aws:s3:::*/*"],
-      "Condition": {
-        "StringEquals": {
-          "aws:sourceVpc": "${aws_vpc.main.id}"
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": ["s3:*"],
+        "Resource": ["arn:aws:s3:::*/*"],
+        "Condition": {
+          "StringEquals": {
+            "aws:sourceVpc": "${aws_vpc.main.id}"
+          }
         }
       }
-    }
-  ]
+    ]
+  }
+  POLICY
 }
-POLICY
-}
-
-
-
-
 
 resource "aws_security_group" "alb_sg" {
   name        = var.alb_security_group_name
@@ -293,8 +283,6 @@ resource "aws_s3_bucket_policy" "alb_access_logs_policy" {
   ]
   })
 }
-
-
 
 resource "aws_lb" "alb" {
   name               = var.alb_name
@@ -401,8 +389,6 @@ resource "aws_lb_listener" "https_root_redirect" {
   }
 }
 
-
-
 resource "aws_lb_target_group" "tg" {
   name     = var.target_group_name
   port     = var.target_group_port
@@ -476,4 +462,3 @@ resource "aws_lb_listener_rule" "www_rule" {
     }
   }
 }
-

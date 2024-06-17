@@ -75,18 +75,4 @@ module "ecs" {
   private_subnet_ids               = module.load_balancer.private_subnet_ids
   target_group_arn                 = module.load_balancer.target_group_arn
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

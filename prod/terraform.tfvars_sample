@@ -10,7 +10,6 @@ target_group_name       = ""
 alb_security_group_name = ""
 root_redirect           = true
 
-
 # Variables with defaults don't need to be specified unless you want to override the default
 #ECR Vars
 ecr_repo_name        = ""
@@ -64,8 +63,6 @@ envs = {
   OPENAI_API_VERSION                      = "2023-12-01-preview"
 }
 
-
-
 #Task Definition Vars
 container_cpu            = 1024
 container_memory         = 4096
@@ -86,10 +83,3 @@ logout_urls     = [""]
 create_pre_auth_lambda = false
 use_saml_idp           = false 
 route53_zone_id        = ""
-
-
-
-
-
-
-
