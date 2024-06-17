@@ -1,3 +1,7 @@
+module "lambda_layer" {
+  source                  = "../modules/lambda_layer"
+  }
+  
 module "load_balancer" {
   source                  = "../modules/load_balancer"
   vpc_cidr                = var.vpc_cidr
@@ -68,6 +72,8 @@ module "ecs" {
   secret_name                      = "${local.env}-${var.secret_name}"
   secrets                          = var.secrets
   envs                             = var.envs
+  openai_api_key_name              = "${local.env}-${var.openai_api_key_name}"
+  openai_endpoints_name            = "${local.env}-${var.openai_endpoints_name}"
   envs_name                        = "${local.env}-${var.envs_name}"
   ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
   ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description}"
@@ -81,6 +87,108 @@ module "ecs" {
 
 }
 
+# load_balancer/outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = module.load_balancer.vpc_id
+}
+
+output "app_route53_zone_id"{
+  description = "The Route 53 Zone ID for the application"
+  value       = var.app_route53_zone_id
+}
+
+output "vpc_cidr_block" {
+  description = "The CIDR block of the VPC"
+  value       = module.load_balancer.vpc_cidr_block
+}
+
+output "private_subnet_ids" {
+  description = "The IDs of the private subnets"
+  value       = module.load_balancer.private_subnet_ids
+}
+
+output "cognito_user_pool_id" {
+  value       = module.cognito_pool.cognito_user_pool_id
+  description = "The UserPool ID"
+}
+
+output "user_pool_domain" {
+  value       = module.cognito_pool.user_pool_domain
+  description = "Custom Domain"
+}
+
+output "cognito_user_pool_url" {
+  value = module.cognito_pool.cognito_user_pool_url
+}
+
+output "cognito_user_pool_client_id" {
+  value = module.cognito_pool.cognito_user_pool_client_id
+}
+
+output "cognito_user_pool_client_secret" {
+  value = module.cognito_pool.cognito_user_pool_client_secret
+  sensitive = true
+}
+
+# Accessing the outputs from the ECS module
+output "app_envs_secret_name" {
+  description = "The name of the 'envs' secret from the ECS module."
+  value       = module.ecs.envs_secret_name
+}
+
+output "app_secrets_secret_name" {
+  description = "The name of the 'my_secrets' secret from the ECS module."
+  value       = module.ecs.my_secrets_secret_name
+}
+
+output "app_secrets_secret_arn" {
+  description = "The arn of the 'my_secrets' secret from the ECS module."
+  value       = module.ecs.my_secrets_secret_arn
+}
+
+output "openai_api_key_secret_name" {
+  description = "The name of the 'openai_api_key' secret from the ECS module."
+  value       = module.ecs.openai_api_key_secret_name
+}
+
+output "openai_endpoints_secret_name" {
+  description = "The name of the 'openai_endpoints' secret from the ECS module."
+  value       = module.ecs.openai_endpoints_secret_name
+}
+
+output "openai_endpoints_secret_arn" {
+  description = "The arn of the 'openai_endpoints' secret from the ECS module."
+  value       = module.ecs.openai_endpoints_secret_arn
+}
+output "domain_name" {
+  value       = "${local.env}-${var.domain_name}"
+  description = "The domain name used for the application"
+}
+
+output "pandoc_lambda_layer_arn" {
+  value = module.lambda_layer.pandoc_lambda_layer_arn
+  description = "The ARN for the existing version of the Pandoc Lambda layer."
+}
+
+output "ecr_repository_uri" {
+  value = module.ecr.ecr_image_repository_url
+}
+
+output "ecr_repository_name" {
+  value = module.ecr.ecr_image_repository_name
+}
+
+output "ecs_service_name" {
+  description = "The Name of the ECS service"
+  value       = module.ecs.ecs_service_name
+}
+
+output "ecs_cluster_name" {
+  description = "The ARN of the ECS Cluster"
+  value       = module.ecs.ecs_cluster_name
+}
 
 
 

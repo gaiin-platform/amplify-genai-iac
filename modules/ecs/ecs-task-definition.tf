@@ -145,7 +145,9 @@ resource "aws_iam_policy" "secret_access_policy" {
         ],
         Resource  = [
           aws_secretsmanager_secret.envs.arn,
-          aws_secretsmanager_secret.my_secrets.arn
+          aws_secretsmanager_secret.my_secrets.arn,
+          aws_secretsmanager_secret.openai_api_key.arn,
+          aws_secretsmanager_secret.openai_endpoints.arn
         ]
       }
     ]
