@@ -1,4 +1,5 @@
 #Code pipeline
+
 # Generate a random id
 resource "random_id" "random" {
   byte_length = 8
@@ -73,8 +74,6 @@ resource "aws_s3_bucket_logging" "codepipeline_artifacts_logging" {
   target_prefix = "log/"
 }
 
-
-
 # CodePipeline Role
 resource "aws_iam_role" "codepipeline_role" {
   name = "${var.service_name}-codepipeline-role"
@@ -117,8 +116,6 @@ resource "aws_codepipeline" "ecs_codepipeline" {
       }
     }
   }
-
-
 
   stage {
     name = "Deploy"
@@ -188,4 +185,3 @@ resource "aws_iam_role_policy_attachment" "codepipeline_policy_attachment" {
   role       = aws_iam_role.codepipeline_role.name
   policy_arn = aws_iam_policy.codepipeline_policy.arn
 }
-

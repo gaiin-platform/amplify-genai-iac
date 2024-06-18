@@ -1,7 +1,7 @@
 module "lambda_layer" {
   source                  = "../modules/lambda_layer"
-  }
-  
+}
+
 module "load_balancer" {
   source                  = "../modules/load_balancer"
   vpc_cidr                = var.vpc_cidr
@@ -42,7 +42,6 @@ module "ecr" {
   service_name  = module.ecs.ecs_service_name
   cluster_name  = module.ecs.ecs_cluster_name
   notification_arn = module.ecs.ecs_alarm_notifications_topic_arn
-  
 }
 
 module "ecs" {
@@ -84,7 +83,6 @@ module "ecs" {
   private_subnet_ids               = module.load_balancer.private_subnet_ids
   target_group_arn                 = module.load_balancer.target_group_arn
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
-
 }
 
 # load_balancer/outputs.tf
@@ -189,15 +187,3 @@ output "ecs_cluster_name" {
   description = "The ARN of the ECS Cluster"
   value       = module.ecs.ecs_cluster_name
 }
-
-
-
-
-
-
-
-
-
-
-
-

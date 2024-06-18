@@ -129,6 +129,7 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu" {
   }
   alarm_actions = [aws_appautoscaling_policy.scale_down.arn, aws_sns_topic.ecs_alarm_notifications.arn]
 }
+
 # Security Group for ECS tasks
 resource "aws_security_group" "ecs_tasks_sg" {
   name        = "${var.service_name}-ecs-tasks"

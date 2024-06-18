@@ -1,4 +1,3 @@
-
 resource "aws_lambda_function" "pre_auth_trigger" {
   count = var.create_pre_auth_lambda ? 1 : 0
 

@@ -13,7 +13,7 @@ This repository contains very opionated Terraform modules for setting up AWS inf
 The Terraform configuration is organized into modules for reusability and manageability:
 
 - **Load Balancer Module**: Sets up an Application Load Balancer (ALB), target groups, and necessary Route 53 records. It also manages SSL certificate creation and validation, VPC and subnet creation, and security group rules.
-- **ECR Module**: Creates an Elastic Container Registry (ECR) for storing Docker images.
+- **ECR Module**: Creates an ECR for storing Docker images.
 - **ECS Module**: Provisions an ECS cluster, task definitions, services, IAM roles, CloudWatch log groups, and Auto Scaling configurations. It also manages task execution roles, task roles, CloudWatch alarms, and Service Auto Scaling policies.
 - **Cognito User Pool Module**: Configures a Cognito User Pool for user authentication, along with a user pool client, domain, and identity provider.
 
@@ -28,6 +28,7 @@ The Terraform configuration is organized into modules for reusability and manage
 ### Load Balancer Module
 
 To set up the load balancer, include the following module configuration in your Terraform:
+#TODO: do we want to mention what file here?
 
 ```hcl
 module "load_balancer" {
@@ -55,6 +56,9 @@ To create an ECR repository, use the following module configuration:
 module "ecr" {
   source        = "../modules/ecr"
   ecr_repo_name = "${local.env}-${var.ecr_repo_name}"
+  service_name  = module.ecs.ecs_service_name
+  cluster_name  = module.ecs.ecs_cluster_name
+  notification_arn = module.ecs.ecs_alarm_notifications_topic_arn
 }
 ```
 
@@ -89,9 +93,11 @@ module "ecs" {
   secret_name                      = "${local.env}-${var.secret_name}"
   secrets                          = var.secrets
   envs                             = var.envs
+  openai_api_key_name              = "${local.env}-${var.openai_api_key_name}"
+  openai_endpoints_name            = "${local.env}-${var.openai_endpoints_name}"
   envs_name                        = "${local.env}-${var.envs_name}"
   ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
-  ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description"
+  ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description}"
   ecs_alarm_email                  = "amplify+innovation@vanderbilt.edu"
   ecr_image_repository_arn         = module.ecr.ecr_image_repository_arn
   ecr_image_repository_url         = module.ecr.ecr_image_repository_url
@@ -99,7 +105,7 @@ module "ecs" {
   private_subnet_ids               = module.load_balancer.private_subnet_ids
   target_group_arn                 = module.load_balancer.target_group_arn
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
-  }
+}
 ```
 
 ### Cognito User Pool Module
@@ -115,8 +121,8 @@ module "cognito_pool" {
   userpool_name           = "${local.env}-${var.userpool_name}"
   provider_name           = "${local.env}-${var.provider_name}"
   sp_metadata_url         = var.sp_metadata_url
-  callback_urls           = ["https://{local.env}-${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
-  logout_urls             = ["https://{local.env}-${var.domain_name}", "http://localhost:3000"]
+  callback_urls           = ["https://${local.env}-${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
+  logout_urls             = ["https://${local.env}-${var.domain_name}", "http://localhost:3000"]
   create_pre_auth_lambda  = var.create_pre_auth_lambda
   use_saml_idp            = var.use_saml_idp
   domain_name             = "${local.env}-${var.domain_name}"

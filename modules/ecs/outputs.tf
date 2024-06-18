@@ -5,13 +5,11 @@ output "ecs_cluster_name" {
   value       = aws_ecs_cluster.cluster.name
 }
 
-
 # Output for ECS Service Name
 output "ecs_service_name" {
   description = "The name of the ECS service"
   value       = aws_ecs_service.service.name
 }
-
 
 output "ecs_alarm_notifications_topic_arn" {
   description = "SNS topic ARN for ECS alarm notifications"
@@ -28,7 +26,6 @@ output "envs_secret_name" {
   description = "The name of the 'envs' secret."
   value       = aws_secretsmanager_secret.envs.name
 }
-
 
 # Output for "my_secrets" secret name
 output "my_secrets_secret_name" {

@@ -1,5 +1,3 @@
-
-
 resource "aws_cognito_user_pool" "main" {
   name = var.userpool_name
 
@@ -77,8 +75,6 @@ resource "aws_cognito_user_pool_domain" "main" {
   depends_on      = [aws_acm_certificate_validation.cognito_ssl_cert_validation] # Ensure the certificate is validated first
 }
 
-
-
 resource "aws_cognito_user_pool_client" "main" {
   name = var.userpool_name
 
@@ -98,11 +94,8 @@ resource "aws_cognito_user_pool_client" "main" {
     refresh_token = "days"
   }
   
-
   explicit_auth_flows = var.disable_public_signup ? ["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"] : ["ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
 
-  
-  
   prevent_user_existence_errors = "ENABLED"
   
   // Set the supported identity providers based on whether SAML IdP is used.

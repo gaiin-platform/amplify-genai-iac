@@ -26,14 +26,12 @@ variable "callback_urls" {
 variable "logout_urls" {
   description = "Enter Logout Urls for SSO"
   type        = list(string)
-
 }
 
 variable "route53_zone_id" {
   description = "Enter Route53 Zone ID"
   type        = string
   default = ""
-  
 }
 
 variable "create_pre_auth_lambda" {
@@ -58,15 +56,12 @@ variable "ssl_certificate_arn" {
   type        = string
 }
 
-
 variable "disable_public_signup" {
   description = "Whether to disable public sign-up in the hosted UI"
   type        = bool
   default     = true
 }
 
-
 variable "cognito_route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
-
