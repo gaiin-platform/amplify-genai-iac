@@ -6,7 +6,7 @@ Allen Karns, Jules White, Karely Rodriguez, Max Moundas
 
 # AWS Infrastructure for Amplify as Terraform Modules
 
-This repository contains very opionated Terraform modules for setting up AWS infrastructure components for a scalable infrastructure to deploy AmplifyGenAI into. The infrastructure includes a load balancer, an ECR repository, and an ECS cluster with Fargate, along with a basic ecr deployment pipeline.
+This repository contains very opionated Terraform modules for setting up AWS infrastructure components for a scalable infrastructure to deploy AmplifyGenAI into. The infrastructure includes a load balancer, an ECR repository, and an ECS cluster with Fargate, along with the beginnings of a basic ecr deployment pipeline. It is part of a larger deployment for Amplify GenAI which can be found at https://github.com/gaiin-platform.
 
 ## Modules Overview
 
