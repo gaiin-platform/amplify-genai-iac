@@ -34,6 +34,7 @@ variable "root_redirect" {
   description = "Whether to create an extra load balancer rule for root of domain. (e.g. site.co, -> www.site.com)"
   type        = bool
   default     = false
+
 }
 
 variable "app_route53_zone_id" {
@@ -48,41 +49,48 @@ variable "target_group_name" {
 variable "target_group_port" {
   description = "The port of the target group"
   type        = string
+
 }
 
 variable "alb_security_group_name" {
   description = "The name of the alb security group"
   type        = string
   default     = "your-security-group-name"
+
 }
 
 variable "cloudwatch_policy_name" {
   description = "The name of the CloudWatch policy"
   type        = string
   default     = "your-cloud-watcy-policy-name"
+
 }
 
 variable "ecr_repo_access_policy_name" {
   description = "The name of the ECR repo access policy"
   type        = string
   default     = "your-ecr-repo-access-policy"
+
 }
 
 variable "container_exec_policy_name" {
   description = "The name of the container exec policy"
   type        = string
   default     = "your-container-exec-policy"
+
 }
 
 variable "secret_access_policy_name" {
   description = "The name of the secret access policy"
   type        = string
+
 }
 
 variable "cloudwatch_log_group_name" {
   description = "The name of the CloudWatch log group"
   type        = string
   default     = "/ecs/"
+
 }
 
 variable "cloudwatch_log_stream_prefix" {
@@ -108,12 +116,10 @@ variable "container_name" {
   description = "The name of the container within the task"
   type        = string
 }
-
 variable "container_port" {
   description = "The port number on the container that is bound to the user-specified or automatically assigned host port"
   type        = number
 }
-
 variable "max_capacity" {
   description = "Maximum capacity for Application Auto Scaling"
   type        = number
@@ -141,6 +147,15 @@ variable "scale_out_cooldown" {
 
 variable "secret_name" {
   description = "The name of the secrets container in AWS Secrets Manager"
+  type        = string
+}
+variable "openai_api_key_name" {
+  description = "The name of the openai_api_key in AWS Secrets Manager"
+  type        = string
+}
+
+variable "openai_endpoints_name" {
+  description = "The name of the openai endpoints in AWS Secrets Manager"
   type        = string
 }
 
@@ -295,6 +310,7 @@ variable "callback_urls" {
 variable "logout_urls" {
   description = "Enter Logout Urls for SSO"
   type        = list(string)
+
 }
 
 variable "create_pre_auth_lambda" {
