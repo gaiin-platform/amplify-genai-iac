@@ -98,7 +98,7 @@ module "ecs" {
   envs_name                        = "${local.env}-${var.envs_name}"
   ecs_scale_down_alarm_description = "${local.env}-${var.ecs_scale_down_alarm_description}"
   ecs_scale_up_alarm_description   = "${local.env}-${var.ecs_scale_up_alarm_description}"
-  ecs_alarm_email                  = "amplify+innovation@vanderbilt.edu"
+  ecs_alarm_email                  = var.ecs_alarm_email
   ecr_image_repository_arn         = module.ecr.ecr_image_repository_arn
   ecr_image_repository_url         = module.ecr.ecr_image_repository_url
   vpc_id                           = module.load_balancer.vpc_id
