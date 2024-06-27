@@ -1,5 +1,10 @@
 # main.tf
 
+# Generate a random id
+resource "random_id" "random" {
+  byte_length = 8
+}
+
 # ECS Cluster
 resource "aws_ecs_cluster" "cluster" {
   name = var.cluster_name
@@ -12,7 +17,7 @@ resource "aws_ecs_cluster" "cluster" {
 
 # ECS Service
 resource "aws_ecs_service" "service" {
-  name            = var.service_name
+  name            = "${var.service_name}-${random_id.random.hex}"
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.app_task.arn
   launch_type     = "FARGATE"
