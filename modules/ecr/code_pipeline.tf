@@ -7,7 +7,7 @@ resource "random_id" "random" {
 
 # Access logs S3 bucket
 resource "aws_s3_bucket" "access_logs" {
-  bucket = "${var.service_name}-s3-access-logs-${random_id.random.hex}"
+  bucket = "${var.service_name}-s3-access-logs"
   force_destroy = true
 }
 
