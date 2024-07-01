@@ -33,6 +33,18 @@ resource "aws_cognito_user_pool" "main" {
   }
 }
 
+schema { 
+    attribute_data_type      = "String"
+    mutable                  = true
+    name                     = "saml_groups"  // can be use with preauth lambda to limit access by group
+    required                 = false  // custom attributes can not be required
+
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 2048
+    }
+  }
+
 resource "aws_acm_certificate" "cognito_ssl_cert" {
   domain_name       = var.cognito_domain  
   validation_method = "DNS"
@@ -125,7 +137,7 @@ resource "aws_cognito_identity_provider" "saml" {
     name        = "Name"
     given_name  = "Given Name"
     family_name = "Surname"
-    "custom:vu_groups" = "groups"
+    "custom:saml_groups" = "groups"
   }
 
   provider_details = {
