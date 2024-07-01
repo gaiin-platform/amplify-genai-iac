@@ -38,7 +38,7 @@ resource "aws_s3_bucket_public_access_block" "access_logs" {
 
 # CodePipeline Artifacts Store
 resource "aws_s3_bucket" "codepipeline_artifacts" {
-  bucket = "${var.service_name}-codepipeline-artifacts"
+  bucket = "${var.service_name}-cp-artifacts"
   force_destroy = true
 }
 
