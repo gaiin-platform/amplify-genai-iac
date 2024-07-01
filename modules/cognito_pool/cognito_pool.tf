@@ -31,9 +31,8 @@ resource "aws_cognito_user_pool" "main" {
     name                = "name"
     required            = true
   }
-}
 
-schema { 
+  schema { 
     attribute_data_type      = "String"
     mutable                  = true
     name                     = "saml_groups"  // can be use with preauth lambda to limit access by group
@@ -44,6 +43,7 @@ schema {
       max_length = 2048
     }
   }
+}  
 
 resource "aws_acm_certificate" "cognito_ssl_cert" {
   domain_name       = var.cognito_domain  
