@@ -35,13 +35,19 @@ resource "aws_cognito_user_pool" "main" {
   schema { 
     attribute_data_type      = "String"
     mutable                  = true
-    name                     = "saml_groups"  // can be use with preauth lambda to limit access by group
-    required                 = false  // custom attributes can not be required
+    name                     = "saml_groups"  // can be used with preauth lambda to limit access by group
+    required                 = false  // custom attributes cannot be required
 
     string_attribute_constraints {
       min_length = 0
       max_length = 2048
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      schema
+    ]
   }
 }  
 
