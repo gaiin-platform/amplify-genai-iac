@@ -58,7 +58,7 @@ task_name                = "gen-ai-app-task"
 task_execution_role_name = "gen-ai-app-task-execution-role"
 task_role_name           = "gen-ai-app-task-role"
 region                   = "us-east-1"
-container_name           = "amplifyApp"
+container_name           = "amplifyApp" #dont change this container name
 
 # Secrets Manager Vars
 openai_api_key_name = "openai-api-key"
