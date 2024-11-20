@@ -44,7 +44,7 @@ backend.tf
 *.log
 *params.json
 *secret.json
-/install*
+
 *.backend.tf
 *.DS_Store
 *endpoints.json
