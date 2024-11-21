@@ -10,6 +10,9 @@ CURRENT_DIR=$(pwd)
 # Log file path
 LOGFILE="${env}-update-task-definition.log"
 
+# Path to the serverless compose log file
+SERVERLESS_LOGFILE_PATH="${env}-serverless-compose.log"
+
 # Function to log messages
 log_message() {
     local message="$1"
