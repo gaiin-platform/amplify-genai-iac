@@ -32,50 +32,7 @@ if [ -z "$env" ]; then
   exit 1
 fi
 
-log_message "Updating secrets for environment: $env"
-
-# Path to the serverless compose log file
-SERVERLESS_LOGFILE_PATH="${env}-serverless-compose.log"
-
-# Parse the log file for the last occurrence of BasePromptsBucketOutput
-BASE_PROMPTS_BUCKET=$(grep 'BasePromptsBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
-
-# If the BASE_PROMPTS_BUCKET is not set, prompt the user for it
-if [ -z "${BASE_PROMPTS_BUCKET}" ]; then
-  log_message "No BasePromptsBucketOutput found in ${SERVERLESS_LOGFILE_PATH}. Please check the deployment logs to acquire the BasePromptsBucketOutput."
-  BASE_PROMPTS_BUCKET=$(prompt_for_value "BasePromptsBucketOutput" "This value can be found in CloudFormation in the outputs tab of the amplify-lambda stack")
-fi
-
-# Log the found or entered bucket name
-log_message "BasePromptsBucketOutput (last occurrence) is set to: ${BASE_PROMPTS_BUCKET}"
-
-# Upload the file to the S3 bucket, wrapped in an if statement
-if aws s3 cp ../files/base.json s3://$BASE_PROMPTS_BUCKET/base.json; then
-    log_message "File uploaded to s3://$BASE_PROMPTS_BUCKET/base.json successfully."
-else
-    log_message "File upload to s3://$BASE_PROMPTS_BUCKET/base.json failed."
-fi
-
-#Upload the templates for exporting to PPT
-
-# Parse the log file for the last occurrence of ConverstionTemplatesBucketOutput
-CONVERSTION_TEMPLATES_BUCKET=$(grep 'ConverstionTemplatesBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
-
-# If the CONVERSTION_TEMPLATES_BUCKET is not set, prompt the user for it
-if [ -z "${CONVERSTION_TEMPLATES_BUCKET}" ]; then
-  log_message "No ConverstionTemplatesBucketOutput found in ${SERVERLESS_LOGFILE_PATH}. Please check the deployment logs to acquire the ConverstionTemplatesBucketOutput."
-  CONVERSTION_TEMPLATES_BUCKET=$(prompt_for_value "ConverstionTemplatesBucketOutput" "This value can be found in CloudFormation in the outputs tab of the amplify-lambda stack")
-fi
-
-# Log the found or entered bucket name
-log_message "ConverstionTemplatesBucketOutput (last occurrence) is set to: ${CONVERSTION_TEMPLATES_BUCKET}"
-
-# Upload the files from the templates folder to the S3 bucket
-if aws s3 sync ../files/templates s3://${CONVERSTION_TEMPLATES_BUCKET}/templates/; then
-    log_message "Templates folder uploaded to s3://${CONVERSTION_TEMPLATES_BUCKET}/templates/ successfully."
-else
-    log_message "Templates folder upload to s3://${CONVERSTION_TEMPLATES_BUCKET}/templates/ failed."
-fi
+log_message "Updating variables secrets for environment: $env"
 
 
 # Parse the log file for the last occurrence of ChatLambdaFunctionUrl
@@ -116,6 +73,19 @@ log_message "ChatLambdaFunctionUrl (last occurrence) is set to: ${CHAT_ENDPOINT_
 # Prepend https:// and append / to the CUSTOM_API_DOMAIN
 API_BASE_URL="https://$CUSTOM_API_DOMAIN"
 log_message "API_BASE_URL constructed: $API_BASE_URL"
+
+# Fetch COGNITO_USER_DOMAINfrom the JSON output file
+USER_POOL_DOMAIN=$(jq -r '.user_pool_domain.value' "../${env}/${env}-outputs.json")
+if [ -z "$USER_POOL_DOMAIN" ]; then
+  log_message "USER_POOL_DOMAIN not found in ../${env}/${env}-outputs.json. Please ensure the output file contains the required ID."
+  exit 1
+fi
+log_message "USER_POOL_DOMAIN fetched: $USER_POOL_DOMAIN"
+
+# Construct COGNITO_DOMAIN
+COGNITO_DOMAIN="https://$USER_POOL_DOMAIN"
+log_message "COGNITO_DOMAIN constructed: $COGNITO_DOMAIN"
+
 
 # Fetch COGNITO_USER_POOL_ID from the JSON output file
 COGNITO_USER_POOL_URL=$(jq -r '.cognito_user_pool_url.value' "../${env}/${env}-outputs.json")
@@ -203,7 +173,7 @@ fi
 
 # Perform all checks up-front
 log_message "Performing variable checks up-front."
-if [ -z "$CHAT_ENDPOINT_URL" ] || [ -z "$COGNITO_ISSUER" ] || [ -z "$ASSISTANTS_API_BASE" ] || [ -z "$CUSTOM_API_DOMAIN" ] || [ -z "$COGNITO_USER_POOL_CLIENT_SECRET" ] || [ -z "$SECRETS_ARN_NAME" ] || [ -z "$COGNITO_CLIENT_ID" ]; then
+if [ -z "$CHAT_ENDPOINT_URL" ] || [ -z "$COGNITO_ISSUER" ] || [ -z "$COGNITO_DOMAIN" ] ||  [ -z "$CUSTOM_API_DOMAIN" ] || [ -z "$COGNITO_USER_POOL_CLIENT_SECRET" ] || [ -z "$SECRETS_ARN_NAME" ] || [ -z "$COGNITO_CLIENT_ID" ]; then
     log_message "Failed to obtain the necessary values. Exiting."
     exit 1
 fi
@@ -219,11 +189,12 @@ fi
 # Update the values in the terraform.tfvars file
 {
   $SED_CMD "s|\(CHAT_ENDPOINT *= *\"\)[^\"]*\"|\1$CHAT_ENDPOINT_URL\"|g" "../${env}/terraform.tfvars"
-  $SED_CMD "s|\(ASSISTANTS_API_BASE *= *\"\)[^\"]*\"|\1$ASSISTANTS_API_BASE\"|g" ../"${env}/terraform.tfvars"
   $SED_CMD "s|\(API_BASE_URL *= *\"\)[^\"]*\"|\1$API_BASE_URL\"|g" ../"${env}/terraform.tfvars"
   $SED_CMD "s|\(COGNITO_CLIENT_ID *= *\"\)[^\"]*\"|\1$COGNITO_CLIENT_ID\"|g" "../${env}/terraform.tfvars"
   $SED_CMD "s|\(COGNITO_ISSUER *= *\"\)[^\"]*\"|\1$COGNITO_ISSUER\"|g" "../${env}/terraform.tfvars"
-  log_message "Updated terraform.tfvars with CHAT_ENDPOINT, ASSISTANTS_API_BASE, API_BASE_URL, COGNITO_CLIENT_ID and."
+  $SED_CMD "s|\(COGNITO_DOMAIN *= *\"\)[^\"]*\"|\1$COGNITO_DOMAIN\"|g" "../${env}/terraform.tfvars"
+
+  log_message "Updated terraform.tfvars with CHAT_ENDPOINT, API_BASE_URL, COGNITO_CLIENT_ID and."
 
   # Search for desired_count and change it to 1 if it is set to 0
   $SED_CMD "s|\(desired_count *= *\)0|\11|g" "../${env}/terraform.tfvars"

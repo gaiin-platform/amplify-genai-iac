@@ -135,7 +135,7 @@ esac
 
 
 # Ask the user if they want to run the update-task-definition.sh script
-read -p "This will copy base prompts and powerpoint templates to AWS as well as update the task definition and run Terraform Apply to push it to AWS. Do you wish to proceed?(y/n): " run_update_task
+read -p "This will update the task definition and run Terraform Apply to push it to AWS. Do you wish to proceed?(y/n): " run_update_task
 
 # Run update-task-definition.sh if the user agrees
 if [[ "$run_update_task" == "y" ]]; then
@@ -145,6 +145,18 @@ if [[ "$run_update_task" == "y" ]]; then
 else
     log_message "Task definition update skipped by user."
 fi
+
+# Ask the user if they want to update the ECS service
+read -p "Do you want add base prompts and ppt files to S3 (y/n): " prompts_ppt
+
+# Run deploy-to-ecs.sh if the user agrees
+if [[ "$prompts_ppt" == "y" ]]; then
+    ./prompts-ppt.sh "${env}"  2>&1 | tee -a "$LOG_FILE"
+    log_message "Base Prompts and PPT Files uploaded to S3."
+else
+    log_message "Deploy base prompts and ppt export files skipped by user."
+fi
+
 
 
 cd - || exit 1
@@ -165,6 +177,7 @@ if [[ "$deploy_to_ecr" == "y" ]]; then
 else
     log_message "Deploy to ECR skipped by user."
 fi
+
 
 # Ask the user if they want to update the ECS service
 read -p "Do you want to deploy the updated service to ECS? (y/n): " deploy_to_ecs
