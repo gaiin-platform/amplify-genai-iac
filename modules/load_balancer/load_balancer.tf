@@ -327,15 +327,17 @@ resource "aws_s3_bucket_policy" "alb_access_logs_policy" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::127311923021:root"
+        "AWS": [data.aws_elb_service_account.lb.arn]
       },
       "Action": "s3:PutObject",
-      "Resource": "${aws_s3_bucket.alb_access_logs.arn}/AWSLogs/*"
+      "Resource": "${aws_s3_bucket.alb_access_logs.arn}/*"
       
     }
   ]
   })
 }
+
+data "aws_elb_service_account" "lb" {}
 
 resource "aws_lb" "alb" {
   name               = var.alb_name
