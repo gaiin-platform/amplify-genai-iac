@@ -22,7 +22,7 @@ log_message() {
 SERVERLESS_LOGFILE_PATH="${env}-serverless-compose.log"
 
 # Parse the log file for the last occurrence of BasePromptsBucketOutput
-BASE_PROMPTS_BUCKET=$(grep 'BasePromptsBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
+BASE_PROMPTS_BUCKET=$(grep 'BasePromptsBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $2 }' || true)
 
 # If the BASE_PROMPTS_BUCKET is not set, prompt the user for it
 if [ -z "${BASE_PROMPTS_BUCKET}" ]; then
@@ -43,7 +43,7 @@ fi
 #Upload the templates for exporting to PPT
 
 # Parse the log file for the last occurrence of ConverstionTemplatesBucketOutput
-CONVERSTION_TEMPLATES_BUCKET=$(grep 'ConverstionTemplatesBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
+CONVERSTION_TEMPLATES_BUCKET=$(grep 'ConverstionTemplatesBucketOutput:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $2 }' || true)
 
 # If the CONVERSTION_TEMPLATES_BUCKET is not set, prompt the user for it
 if [ -z "${CONVERSTION_TEMPLATES_BUCKET}" ]; then

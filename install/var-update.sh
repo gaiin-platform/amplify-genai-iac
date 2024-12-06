@@ -107,11 +107,9 @@ update_or_append "$LOCAL_YAML_FILE" "OPENAI_API_KEY" "$(jq -r '.openai_api_key_s
 update_or_append "$LOCAL_YAML_FILE" "LLM_ENDPOINTS_SECRETS_NAME_ARN" "$(jq -r '.openai_endpoints_secret_arn.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$LOCAL_YAML_FILE" "LLM_ENDPOINTS_SECRETS_NAME" "$(jq -r '.openai_endpoints_secret_name.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$LOCAL_YAML_FILE" "SECRETS_ARN_NAME" "$(jq -r '.app_secrets_secret_arn.value' "$OUTPUT_JSON_FILE")"
-#update_or_append "$LOCAL_YAML_FILE" "PANDOC_LAMBDA_LAYER_ARN" "$(jq -r '.pandoc_lambda_layer_arn.value' "$OUTPUT_JSON_FILE")"
-#update_or_append "$LOCAL_YAML_FILE" "OBJECT_ACCESS_LAMBDA_LAYER_ARN" "$(jq -r '.object_access_lambda_layer_arn.value' "$OUTPUT_JSON_FILE")"
-update_or_append "$LOCAL_YAML_FILE" "RDS_HOSTED_ZONE_ID" "$(jq -r '.app_route53_zone_id.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$LOCAL_YAML_FILE" "IDP_PREFIX" "$(jq -r '.provider.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$LOCAL_YAML_FILE" "OAUTH_AUDIENCE" "$(jq -r '.domain_name.value' "$OUTPUT_JSON_FILE")"
+update_or_append "$LOCAL_YAML_FILE" "HOSTED_ZONE_ID" "$(jq -r '.app_route53_zone_id.value' "$OUTPUT_JSON_FILE")"
 
 # Extract private subnet IDs and update the respective fields
 private_subnets=($(jq -r '.private_subnet_ids.value[]' "$OUTPUT_JSON_FILE"))
@@ -146,11 +144,9 @@ update_or_append "$DEST_YAML_FILE" "LLM_ENDPOINTS_SECRETS_NAME_ARN" "$(jq -r '.o
 update_or_append "$DEST_YAML_FILE" "LLM_ENDPOINTS_SECRETS_NAME" "$(jq -r '.openai_endpoints_secret_name.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$DEST_YAML_FILE" "SECRETS_ARN_NAME" "$(jq -r '.app_secrets_secret_arn.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$DEST_YAML_FILE" "PANDOC_LAMBDA_LAYER_ARN" "$(jq -r '.pandoc_lambda_layer_arn.value' "$OUTPUT_JSON_FILE")"
-#update_or_append "$DEST_YAML_FILE" "PGVECTOR_LAMBDA_LAYER_ARN" "$(jq -r '.pgvector_lambda_layer_arn.value' "$OUTPUT_JSON_FILE")"
-#update_or_append "$DEST_YAML_FILE" "OBJECT_ACCESS_LAMBDA_LAYER_ARN" "$(jq -r '.object_access_lambda_layer_arn.value' "$OUTPUT_JSON_FILE")"
-update_or_append "$DEST_YAML_FILE" "RDS_HOSTED_ZONE_ID" "$(jq -r '.app_route53_zone_id.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$DEST_YAML_FILE" "IDP_PREFIX" "$(jq -r '.provider.value' "$OUTPUT_JSON_FILE")"
 update_or_append "$DEST_YAML_FILE" "OAUTH_AUDIENCE" "$(jq -r '.domain_name.value' "$OUTPUT_JSON_FILE")"
+update_or_append "$DEST_YAML_FILE" "HOSTED_ZONE_ID" "$(jq -r '.app_route53_zone_id.value' "$OUTPUT_JSON_FILE")"
 
 
 echo "Updated values in ${LOCAL_YAML_FILE} based on ${OUTPUT_JSON_FILE}"

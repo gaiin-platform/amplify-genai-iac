@@ -39,7 +39,7 @@ log_message "Updating variables secrets for environment: $env"
 
 
 # Parse the log file for the last occurrence of ChatLambdaFunctionUrl
-CHAT_ENDPOINT_URL=$(grep 'ChatLambdaFunctionUrl:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
+CHAT_ENDPOINT_URL=$(grep 'ChatLambdaFunctionUrl:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $2 }' || true)
 
 # If the CHAT_ENDPOINT_URL is not set, prompt the user for it
 if [ -z "${CHAT_ENDPOINT_URL}" ]; then
@@ -49,18 +49,6 @@ fi
 
 log_message "ChatLambdaFunctionUrl (last occurrence) is set to: ${CHAT_ENDPOINT_URL}"
 
-## Parse the log file for the last occurrence of ApiGatewayUrl
-#ASSISTANTS_API_BASE=$(grep 'ApiGatewayUrl:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $4 }' || true)
-#
-## If the ASSISTANTS_API_BASE is not set, prompt the user for it
-#if [ -z "${ASSISTANTS_API_BASE}" ]; then
-#  log_message "No ApiGatewayUrl found in ${SERVERLESS_LOGFILE_PATH}. Please check the deployment logs to acquire the ApiGatewayUrl."
-#  ASSISTANTS_API_BASE=$(prompt_for_value "ApiGatewayUrl" "This value can be found in Cloudformation in the outputs tab of the assistants stack")
-#fi
-#
-#log_message "ASSISTANTS_API_BASE (last occurrence) is set to: ${ASSISTANTS_API_BASE}"
-
-# Read CUSTOM_API_DOMAIN from the YAML file
 {
   CUSTOM_API_DOMAIN=$(grep 'CUSTOM_API_DOMAIN' "${env}-var.yml" | awk -F': ' '{ gsub(/^[ \t]*|[ \t]*$/,"",$2); gsub(/^"|"$/,"",$2); print $2 }')
   if [ -z "$CUSTOM_API_DOMAIN" ]; then
