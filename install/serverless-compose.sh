@@ -76,40 +76,6 @@ log_message() {
   echo $PWD
   echo $env
 
-  # Run the serverless deploy command for amplify-lambda service
-  cd amplify-lambda
-  serverless deploy --stage $env --verbose >> "$current_dir/${env}-serverless-compose.log" 2>&1
-
-  cd ../amplify-lambda-js
-
-  # Run the serverless deploy command for amplify-lambda-js service
-  serverless deploy --stage $env --verbose >> "$current_dir/${env}-serverless-compose.log" 2>&1
-
-  # Change directory to install directory
-  cd "$current_dir"
-
-  # Create the destination directory if it doesn't exist
-  mkdir -p "$DEST_DIR"
-  
-  # Update or create the destination YAML file
-  if [[ ! -f "$DEST_YAML_FILE" ]]; then
-      touch "$DEST_YAML_FILE"
-  fi
-
-  # Create or update the local YAML file
-  if [[ ! -f "$LOCAL_YAML_FILE" ]]; then
-      touch "$LOCAL_YAML_FILE"
-  fi
-
-  # Parse the log file for the last occurrence of ChatLambdaFunctionUrl
-  
-  CHAT_ENDPOINT=$(grep 'ChatLambdaFunctionUrl:' "${SERVERLESS_LOGFILE_PATH}" | tail -n 1 | awk '{ print $2 }' || true)
-  echo "Chat Endpoint: $CHAT_ENDPOINT"
-
-  update_or_append "$LOCAL_YAML_FILE" "CHAT_ENDPOINT" "$CHAT_ENDPOINT"
-  update_or_append "$DEST_YAML_FILE" "CHAT_ENDPOINT" "$CHAT_ENDPOINT"
-
-  # Update $env-var.yml file with CHAT_ENDPOINT
 
   cd "$SLS_DIR"
   
