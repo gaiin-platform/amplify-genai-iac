@@ -19,53 +19,36 @@ INSTALL_DIR="$(pwd)"
 
 # Function to prompt user for directory paths
 prompt_for_directories() {
-    local update_sls=""
-    local update_frontend=""
-
     # Define the configuration file path using the environment variable
     CONFIG_FILE="${env}_directories.config"
 
-    # Source the configuration file if it exists to pre-load previous values
-    echo "Loading configuration from $CONFIG_FILE"
+    # Check if the configuration file exists
     if [ -f "$CONFIG_FILE" ]; then
+        # Source the configuration file to load previous values
         source "$CONFIG_FILE"
-    fi
 
-    # Debug: Print current values
-    echo "Current SLS_DIR: $SLS_DIR"
-    echo "Current FRONTEND_DIR: $FRONTEND_DIR"
-
-    # Prompt for Serverless Backend Repository directory
-    if [ -n "$SLS_DIR" ]; then
+        # Prompt for updating Serverless Backend Repository directory
         read -p "Serverless Backend Repository directory is currently set to '$SLS_DIR'. Do you want to update it? [y/N]: " update_sls
-        echo "update_sls: $update_sls"
-
-        # Ensure that the user opts for update, then prompt for new path
         if [[ "$update_sls" =~ ^[Yy]$ ]]; then
-            while [[ -z "$SLS_DIR" ]]; do
-                read -p "Please enter the full directory path for the Serverless Backend Repository (amplify-genai-backend): " SLS_DIR
-            done
-            echo "Updated SLS_DIR: $SLS_DIR"
+            read -p "Please enter the full directory path for the Serverless Backend Repository (amplify-genai-backend): " SLS_DIR
         fi
-    fi
 
-    # Prompt for Frontend Repository directory
-    if [ -n "$FRONTEND_DIR" ]; then
-        read -p  "Frontend Repository directory is currently set to '$FRONTEND_DIR'. Do you want to update it? [y/N]: " update_frontend
-        echo "update_frontend: $update_frontend"
-
-        # Ensure that the user opts for update, then prompt for new path
+        # Prompt for updating Frontend Repository directory
+        read -p "Frontend Repository directory is currently set to '$FRONTEND_DIR'. Do you want to update it? [y/N]: " update_frontend
         if [[ "$update_frontend" =~ ^[Yy]$ ]]; then
-            while [[ -z "$FRONTEND_DIR" ]]; do
-                read -p "Please enter the full directory path for the Frontend Repository (amplify-genai-frontend): " FRONTEND_DIR
-            done
-            echo "Updated FRONTEND_DIR: $FRONTEND_DIR"
+            read -p "Please enter the full directory path for the Frontend Repository (amplify-genai-frontend): " FRONTEND_DIR
         fi
+    else
+        # If the file doesn't exist, prompt for both directories
+        read -p "Please enter the full directory path for the Serverless Backend Repository (amplify-genai-backend): " SLS_DIR
+        read -p "Please enter the full directory path for the Frontend Repository (amplify-genai-frontend): " FRONTEND_DIR
     fi
 
     # Save the directories to the config file
     echo "SLS_DIR=\"$SLS_DIR\"" > "$CONFIG_FILE"
     echo "FRONTEND_DIR=\"$FRONTEND_DIR\"" >> "$CONFIG_FILE"
+
+    echo "Configuration saved to $CONFIG_FILE"
 }
 
 prompt_for_directories
