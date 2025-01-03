@@ -24,9 +24,11 @@ callback_urls          = [""] #DO NOT CHANGE CALLBACK URLS
 logout_urls            = [""] #DO NOT CHANGE LOGOUT URLS
 create_pre_auth_lambda = false #set to true if using pre-auth lambda
 use_saml_idp           = false #set to true if using federated SAML
-disable_public_signup  = true
+disable_public_signup  = true #set to false for demo/testing using Cognito-based authentication
+
 
 # Variables with defaults don't need to be specified unless you want to override the default
+
 
 #ECR Vars
 ecr_repo_name        = "amplifygenai-repo"
@@ -70,22 +72,24 @@ secrets = {
   NEXTAUTH_SECRET       = ""
 }
 
+
 envs_name = "amplify-app-vars" #Do not Change
+
 envs = {
-  API_BASE_URL                = ""
-  ASSISTANTS_API_BASE         = ""
-  AVAILABLE_MODELS            = "gpt-35-turbo,gpt-4-1106-Preview"
+  API_BASE_URL                = "https://<REPLACE_WITH_VALUE_FROM_BACKEND>"
+  ASSISTANTS_API_BASE         = "https://<REPLACE_WITH_VALUE_FROM_BACKEND>"
+  AVAILABLE_MODELS            = "anthropic.claude-3-sonnet-20240229-v1:0,anthropic.claude-3-haiku-20240307-v1:0,gpt-35-turbo,gpt-4-1106-Preview"
   AZURE_API_NAME              = "openai"
   AZURE_DEPLOYMENT_ID         = "gpt-4"
-  CHAT_ENDPOINT               = ""
+  CHAT_ENDPOINT               = "https://<REPLACE_WITH_VALUE_FROM_BACKEND>"
   COGNITO_CLIENT_ID           = ""
-  COGNITO_DOMAIN              = ""
-  COGNITO_ISSUER              = ""
-  DEFAULT_MODEL               = "gpt-35-turbo"
-  DEFAULT_FUNCTION_CALL_MODEL = "gpt-4-1106-Preview"
+  COGNITO_DOMAIN              = "https://<REPLACE_WITH_VALUE_FROM_BACKEND>"
+  COGNITO_ISSUER              = "https://<REPLACE_WITH_VALUE_FROM_BACKEND>"
+  DEFAULT_MODEL               = "anthropic.claude-3-haiku-20240307-v1:0"
+  DEFAULT_FUNCTION_CALL_MODEL = "gpt-4-1106-Preview" # Deprecated
   MIXPANEL_TOKEN              = ""
   NEXTAUTH_SECRET             = ""
-  NEXTAUTH_URL                = "" #deployed app domain name
+  NEXTAUTH_URL                = "https://<REPLACE_WITH_APP_DOMAIN_NAME>"
   OPENAI_API_HOST             = "https://api.openai.com"
   OPENAI_API_TYPE             = "azure"
   OPENAI_API_VERSION          = "2024-02-15-preview"
