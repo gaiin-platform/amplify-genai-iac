@@ -97,6 +97,11 @@ output "app_route53_zone_id"{
   value       = var.app_route53_zone_id
 }
 
+output "provider" {
+  description = "The Provider ID of the SAML IdP"
+  value       = "${local.env}-${var.provider_name}"
+}
+
 output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
   value       = module.load_balancer.vpc_cidr_block

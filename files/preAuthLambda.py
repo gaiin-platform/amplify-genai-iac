@@ -28,7 +28,7 @@ def lambda_handler(event, context):
         # Iterate through user attributes to check for specific custom attribute
         for attribute in response["UserAttributes"]:
             # Check if we have found the custom attribute for groups
-            if attribute["Name"] == "custom:vu_groups":
+            if attribute["Name"] == "custom:groups":
                 # Remove leading and trailing square brackets before splitting
                 groups_string = attribute["Value"].strip("[]")
                 groups = groups_string.split(',')

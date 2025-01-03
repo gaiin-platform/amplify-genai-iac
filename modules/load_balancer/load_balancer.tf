@@ -96,6 +96,58 @@ resource "aws_vpc" "main" {
   }
 }
 
+# Add these resources after the VPC resource
+
+resource "aws_flow_log" "vpc_flow_log" {
+  iam_role_arn    = aws_iam_role.vpc_flow_log_role.arn
+  log_destination = aws_cloudwatch_log_group.vpc_flow_log_group.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.main.id
+}
+
+resource "aws_cloudwatch_log_group" "vpc_flow_log_group" {
+  name = "/aws/vpc-flow-log/${aws_vpc.main.id}"
+  retention_in_days = 30
+}
+
+resource "aws_iam_role" "vpc_flow_log_role" {
+  name = "vpc-flow-log-role-${random_id.random.hex}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "vpc-flow-logs.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "vpc_flow_log_policy" {
+  name = "vpc-flow-log-policy"
+  role = aws_iam_role.vpc_flow_log_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ]
+        Effect = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Create public subnets in two different AZs
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidrs)
@@ -274,15 +326,17 @@ resource "aws_s3_bucket_policy" "alb_access_logs_policy" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::127311923021:root"
+        "AWS": [data.aws_elb_service_account.lb.arn]
       },
       "Action": "s3:PutObject",
-      "Resource": "${aws_s3_bucket.alb_access_logs.arn}/AWSLogs/*"
+      "Resource": "${aws_s3_bucket.alb_access_logs.arn}/*"
       
     }
   ]
   })
 }
+
+data "aws_elb_service_account" "lb" {}
 
 resource "aws_lb" "alb" {
   name               = var.alb_name
