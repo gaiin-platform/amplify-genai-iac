@@ -1,3 +1,42 @@
+#Bedrock Guardrail Variables
+
+variable "bedrock_guardrail_enabled" {
+  description = "Enable or disable the Bedrock Guardrail module"
+  type        = bool
+  default     = false
+}
+
+variable "bedrock_guardrail_name" {
+  description = "Name for the Bedrock Guardrail"
+  type        = string
+}
+
+variable "bedrock_guardrail_description" {
+  description = "Description for the Bedrock Guardrail resource"
+  type        = string
+}
+
+variable "bedrock_blocked_input_messaging" {
+  description = "Message to return when the guardrail blocks a prompt (input)"
+  type        = string
+}
+
+variable "bedrock_blocked_outputs_messaging" {
+  description = "Message to return when the guardrail blocks a model response (output)"
+  type        = string
+}
+
+variable "bedrock_topics" {
+  description = "List of topics to block, each as an object with name, examples, type, and definition"
+  type = list(object({
+    name       = string
+    examples   = list(string)
+    type       = string
+    definition = string
+  }))
+  default     = []
+}
+
 #ECR Variables
 
 variable "ecr_repo_name" {
