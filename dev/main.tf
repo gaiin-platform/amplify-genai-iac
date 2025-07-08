@@ -85,6 +85,28 @@ module "ecs" {
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
 }
 
+
+module "bedrock_guardrail" {
+  source                 = "../modules/bedrock_guardrail"
+  guardrail_enabled      = var.bedrock_guardrail_enabled
+  guardrail_name         = var.bedrock_guardrail_name
+  guardrail_description  = var.bedrock_guardrail_description
+  blocked_input_messaging  = var.bedrock_blocked_input_messaging
+  blocked_outputs_messaging = var.bedrock_blocked_outputs_messaging
+  topics                 = var.bedrock_topics
+}
+
+# Accessing the outputs from the Guardrail module
+output "guardrail_arn" {
+  description = "ARN of the Bedrock Guardrail"
+  value       = module.bedrock_guardrail.guardrail_arn
+}
+
+output "guardrail_name" {
+  description = "The name of the Bedrock Guardrail."
+  value       = module.bedrock_guardrail.guardrail_name
+}
+
 # load_balancer/outputs.tf
 
 output "vpc_id" {
