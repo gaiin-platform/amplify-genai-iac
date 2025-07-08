@@ -131,6 +131,23 @@ module "cognito_pool" {
 }
 ```
 
+### Bedrock Guardrail Module
+
+To provision the Bedrock Guardrail and related resources, include the following module configuration:
+
+```hcl
+module "bedrock_guardrail" {
+  source                 = "../modules/bedrock_guardrail"
+  guardrail_enabled      = var.bedrock_guardrail_enabled
+  guardrail_name         = var.bedrock_guardrail_name
+  guardrail_description  = var.bedrock_guardrail_description
+  blocked_input_messaging  = var.bedrock_blocked_input_messaging
+  blocked_outputs_messaging = var.bedrock_blocked_outputs_messaging
+  topics                 = var.bedrock_topics
+}
+```
+
+
 ## Variables
 
 Each module has specific input variables that you need to provide. Refer to the respective module's variables file for the full list of required and optional variables.
