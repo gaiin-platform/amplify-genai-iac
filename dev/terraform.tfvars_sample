@@ -1,5 +1,24 @@
 # terraform.tfvars
 
+# Bedrock Guardrail Vars
+bedrock_guardrail_enabled = false
+bedrock_guardrail_name = "bedrock_guardrail_name"
+bedrock_guardrail_description = "Guardrail description"
+
+bedrock_blocked_input_messaging = "Your request was blocked due to platform policy."
+bedrock_blocked_outputs_messaging = "The model's response was blocked due to platform policy."
+
+
+
+bedrock_topics = [
+  {
+    name       = "investment_topic"
+    examples   = ["Where should I invest my money ?"]
+    type       = "DENY"
+    definition = "Investment advice refers to inquiries, guidance, or recommendations regarding the management or allocation of funds or assets with the goal of generating returns."
+  }
+]
+
 # Load Balancer Vars
 public_subnet_cidrs     = ["172.1.0.0/23", "172.1.2.0/23"]
 private_subnet_cidrs    = ["172.1.4.0/23", "172.1.8.0/23"]
