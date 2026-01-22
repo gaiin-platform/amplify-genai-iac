@@ -1,0 +1,137 @@
+# terraform.tfvars.template
+# Copy this file to terraform.tfvars and replace the placeholder values with your actual configuration
+
+# ============================================================================
+# Network Configuration
+# ============================================================================
+public_subnet_cidrs     = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs    = ["10.0.10.0/24", "10.0.11.0/24"]
+vpc_cidr                = "10.0.0.0/16"
+vpc_name                = "main-vpc"
+
+# ============================================================================
+# Load Balancer Configuration
+# ============================================================================
+alb_name                = "amplifygenai-alb"
+target_group_port       = 3000
+target_group_name       = "amplifygenai-tg"
+alb_security_group_name = "amplifygenai-sg"
+root_redirect           = false  # Set to true if redirecting root to www
+alb_logging_bucket_name = "amplifygenai-alb-access-logs"
+
+# ============================================================================
+# Domain and DNS Configuration
+# REPLACE THESE WITH YOUR ACTUAL VALUES
+# ============================================================================
+domain_name             = "YOUR_DOMAIN_HERE"  # e.g., "app.example.com"
+app_route53_zone_id     = "YOUR_ROUTE53_ZONE_ID_HERE"  # e.g., "Z1234567890ABC"
+
+# ============================================================================
+# Cognito Configuration
+# REPLACE THESE WITH YOUR ACTUAL VALUES
+# ============================================================================
+cognito_domain              = "YOUR_COGNITO_DOMAIN_HERE"  # e.g., "auth.example.com"
+cognito_route53_zone_id     = "YOUR_ROUTE53_ZONE_ID_HERE"  # Same as app_route53_zone_id
+userpool_name               = "AmplifyGenAI-UserPool"
+provider_name               = "AmplifyGenAI"
+sp_metadata_url             = ""  # Service provider metadata URL for SAML SSO (if using)
+callback_urls               = [""]  # DO NOT CHANGE
+logout_urls                 = [""]  # DO NOT CHANGE
+create_pre_auth_lambda      = false  # Set to true if using pre-auth lambda
+use_saml_idp                = false  # Set to true if using federated SAML
+disable_public_signup       = true   # Set to false for demo/testing
+
+# ============================================================================
+# ECR Configuration
+# ============================================================================
+ecr_repo_name        = "amplifygenai-repo"
+image_tag_mutability = "IMMUTABLE"
+scan_on_push         = false
+
+# ============================================================================
+# ECS Configuration
+# ============================================================================
+desired_count                    = 1
+cluster_name                     = "amplifygenai-cluster"
+service_name                     = "amplifygenai-service"
+container_port                   = 3000
+max_capacity                     = 5
+min_capacity                     = 1
+scale_target_value               = 75
+scale_in_cooldown                = 300
+scale_out_cooldown               = 300
+cloudwatch_log_group_name        = "amplifygenai-loggroup"
+cloudwatch_policy_name           = "amplifygenai-cloudwatch-policy"
+cloudwatch_log_stream_prefix     = "ecs"
+secret_access_policy_name        = "amplifygenai-secret-access-policy"
+
+# REPLACE WITH YOUR EMAIL
+ecs_alarm_email = "YOUR_EMAIL_HERE@example.com"  # Email for SNS notifications
+
+ecs_scale_down_alarm_description = "scaling down due to low CPU utilization"
+ecs_scale_up_alarm_description   = "scaling up due to high CPU utilization"
+
+# ============================================================================
+# Task Definition Configuration
+# ============================================================================
+container_cpu            = 1024
+container_memory         = 4096
+task_name                = "gen-ai-app-task"
+task_execution_role_name = "gen-ai-app-task-execution-role"
+task_role_name           = "gen-ai-app-task-role"
+region                   = "us-east-1"
+container_name           = "amplifyApp"  # DO NOT CHANGE
+
+# ============================================================================
+# Secrets Manager Configuration
+# ============================================================================
+openai_api_key_name   = "openai-api-key"    # DO NOT CHANGE
+openai_endpoints_name = "openai-endpoints"  # DO NOT CHANGE
+secret_name           = "amplify-app-secrets"  # DO NOT CHANGE
+
+# These will be populated automatically or manually after deployment
+secrets = {
+  COGNITO_CLIENT_SECRET = ""  # Auto-populated from Cognito
+  OPENAI_API_KEY        = ""  # Add your OpenAI API key
+  NEXTAUTH_SECRET       = ""  # Auto-generated
+}
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+envs_name = "amplify-app-vars"  # DO NOT CHANGE
+
+envs = {
+  # These will be auto-populated after backend deployment
+  API_BASE_URL                = "https://<AUTO_POPULATED_FROM_BACKEND>"
+  ASSISTANTS_API_BASE         = "https://<AUTO_POPULATED_FROM_BACKEND>"
+  CHAT_ENDPOINT               = "https://<AUTO_POPULATED_FROM_BACKEND>"
+  COGNITO_DOMAIN              = "https://<AUTO_POPULATED_FROM_COGNITO>"
+  COGNITO_ISSUER              = "https://<AUTO_POPULATED_FROM_COGNITO>"
+  NEXTAUTH_URL                = "https://<YOUR_DOMAIN_HERE>"
+  
+  # Model configuration
+  AVAILABLE_MODELS            = "anthropic.claude-3-sonnet-20240229-v1:0,anthropic.claude-3-haiku-20240307-v1:0,gpt-35-turbo,gpt-4-1106-Preview"
+  DEFAULT_MODEL               = "anthropic.claude-3-haiku-20240307-v1:0"
+  DEFAULT_FUNCTION_CALL_MODEL = "gpt-4-1106-Preview"
+  
+  # Azure OpenAI configuration (if using)
+  AZURE_API_NAME              = "openai"
+  AZURE_DEPLOYMENT_ID         = "gpt-4"
+  OPENAI_API_HOST             = "https://api.openai.com"
+  OPENAI_API_TYPE             = "azure"
+  OPENAI_API_VERSION          = "2024-02-15-preview"
+  
+  # Auto-populated
+  COGNITO_CLIENT_ID           = ""
+  NEXTAUTH_SECRET             = ""
+  
+  # Optional: Analytics
+  MIXPANEL_TOKEN              = ""
+}
+
+# ============================================================================
+# Deployment Configuration
+# ============================================================================
+environment  = "dev"
+project_name = "amplify-genai"

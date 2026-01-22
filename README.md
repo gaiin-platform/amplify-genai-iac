@@ -2,7 +2,7 @@
 
 # Authors
 
-Allen Karns, Jules White, Karely Rodriguez, Max Moundas
+Allen Karns, Jules White, Karely Rodriguez, Max Moundas, Ashraf Ben
 
 # AWS Infrastructure for Amplify as Terraform Modules
 
@@ -28,7 +28,6 @@ The Terraform configuration is organized into modules for reusability and manage
 ### Load Balancer Module
 
 To set up the load balancer, include the following module configuration in your Terraform:
-#TODO: do we want to mention what file here?
 
 ```hcl
 module "load_balancer" {
@@ -168,3 +167,263 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 Please replace the placeholder values (e.g., `../modules/load_balancer`, `${local.env}-${var.alb_name}`, etc.) with the actual paths and variable values specific to your environment. The provided module configurations are examples and may need to be adjusted to fit your specific use case.
+
+---
+
+## Getting Started with Deployment
+
+This section provides comprehensive instructions for deploying the Amplify GenAI infrastructure from scratch.
+
+### Prerequisites
+
+Before deploying, ensure you have:
+
+1. **AWS Account** with appropriate permissions for:
+   - EC2, ECS, ECR (Elastic Container Registry)
+   - Application Load Balancer (ALB)
+   - Route53 (DNS management)
+   - AWS Certificate Manager (ACM)
+   - Cognito (user authentication)
+   - Secrets Manager
+   - IAM (roles and policies)
+   - CloudWatch (logging and monitoring)
+
+2. **AWS CLI** configured with valid credentials:
+   ```bash
+   aws configure
+   ```
+
+3. **Terraform** installed (version 1.0 or higher):
+   ```bash
+   terraform --version
+   ```
+
+4. **Route53 Hosted Zone** for your domain already created in AWS
+
+5. **SSL Certificate** in AWS Certificate Manager (ACM) for your domain (must be in us-east-1 region)
+
+### Configuration Setup
+
+#### Step 1: Create Your Configuration File
+
+Copy the template file to create your configuration:
+
+```bash
+cd dev
+cp terraform.tfvars.template terraform.tfvars
+```
+
+#### Step 2: Configure Required Values
+
+Edit `terraform.tfvars` and replace the following **required** placeholders:
+
+**Domain and DNS Configuration:**
+- `domain_name`: Your application domain (e.g., `app.example.com`)
+- `app_route53_zone_id`: Your Route53 hosted zone ID (see below for how to find this)
+
+**Cognito Configuration:**
+- `cognito_domain`: Your Cognito authentication domain (e.g., `auth.example.com`)
+- `cognito_route53_zone_id`: Same as `app_route53_zone_id`
+
+**Notifications:**
+- `ecs_alarm_email`: Your email address for receiving deployment and scaling notifications
+
+#### Step 3: Find Your Route53 Hosted Zone ID
+
+Use the AWS CLI to find your hosted zone ID:
+
+```bash
+aws route53 list-hosted-zones --query "HostedZones[?Name=='example.com.'].Id" --output text
+```
+
+Replace `example.com` with your actual domain name. The output will look like: `Z1234567890ABC`
+
+#### Step 4: Verify Your SSL Certificate
+
+Ensure you have a valid SSL certificate in ACM:
+
+```bash
+aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?DomainName=='*.example.com'].CertificateArn" --output text
+```
+
+The certificate should cover your domain (wildcard certificates like `*.example.com` are recommended).
+
+### Deployment Process
+
+#### Step 1: Initialize Terraform
+
+Navigate to the `dev` directory and initialize Terraform:
+
+```bash
+cd dev
+terraform init
+```
+
+This will download the required Terraform providers and initialize the backend.
+
+#### Step 2: Review the Deployment Plan
+
+Generate and review the execution plan:
+
+```bash
+terraform plan
+```
+
+Review the output carefully to ensure all resources will be created as expected.
+
+#### Step 3: Deploy the Infrastructure
+
+Apply the Terraform configuration:
+
+```bash
+terraform apply
+```
+
+Type `yes` when prompted to confirm the deployment. This process typically takes 10-15 minutes.
+
+#### Step 4: Export Terraform Outputs
+
+After successful deployment, export the outputs to a JSON file:
+
+```bash
+terraform output -json > terraform-outputs.json
+```
+
+These outputs contain critical information needed for backend and frontend configuration.
+
+### Configuration Options
+
+The `terraform.tfvars` file supports extensive customization. Key configuration sections include:
+
+#### Network Configuration
+- `vpc_cidr`: VPC CIDR block (default: `10.0.0.0/16`)
+- `public_subnet_cidrs`: Public subnet CIDR blocks for ALB
+- `private_subnet_cidrs`: Private subnet CIDR blocks for ECS tasks
+
+#### ECS Configuration
+- `container_cpu`: CPU units for ECS tasks (default: 1024 = 1 vCPU)
+- `container_memory`: Memory for ECS tasks in MB (default: 4096 = 4 GB)
+- `desired_count`: Initial number of ECS tasks (default: 1)
+- `min_capacity`: Minimum tasks for auto-scaling (default: 1)
+- `max_capacity`: Maximum tasks for auto-scaling (default: 5)
+- `scale_target_value`: Target CPU utilization for scaling (default: 75%)
+
+#### Security Configuration
+- `disable_public_signup`: Set to `true` to disable public user registration
+- `use_saml_idp`: Set to `true` to enable SAML federation
+- `create_pre_auth_lambda`: Set to `true` to use pre-authentication Lambda
+
+For a complete list of configuration options with descriptions, see `terraform.tfvars.example`.
+
+### Post-Deployment Steps
+
+After infrastructure deployment:
+
+1. **Configure Secrets**: Add API keys to AWS Secrets Manager
+   - OpenAI API key (if using OpenAI models)
+   - Anthropic API key (if using Claude models)
+   - NEXTAUTH_SECRET (auto-generated, but can be customized)
+
+2. **Deploy Backend Services**: Deploy Lambda functions using Serverless Framework
+
+3. **Update Environment Variables**: Update frontend environment variables with backend API endpoints
+
+4. **Deploy Frontend**: Build and deploy the Next.js frontend to ECS
+
+For detailed deployment instructions, see `dev/DEPLOYMENT_SETUP.md`.
+
+### Troubleshooting
+
+#### Common Issues and Solutions
+
+**Issue: Route53 Zone Not Found**
+- Verify the zone ID is correct using `aws route53 list-hosted-zones`
+- Ensure the zone exists in your AWS account
+- Check that you're using the correct AWS profile/credentials
+
+**Issue: Certificate Validation Failed**
+- Ensure you have a valid certificate in ACM for your domain
+- Certificate must be in the `us-east-1` region
+- Use a wildcard certificate (e.g., `*.example.com`) to cover subdomains
+- Verify certificate status is "Issued" not "Pending Validation"
+
+**Issue: VPC CIDR Conflicts**
+- Choose a CIDR range that doesn't conflict with existing VPCs
+- Ensure subnet CIDRs are within the VPC CIDR range
+- Verify subnet CIDRs don't overlap with each other
+
+**Issue: Terraform State Lock**
+- If deployment fails mid-way, Terraform state may be locked
+- Wait a few minutes and try again
+- If persistent, manually unlock: `terraform force-unlock <LOCK_ID>`
+
+**Issue: Insufficient Permissions**
+- Ensure your AWS credentials have permissions for all required services
+- Check IAM policies attached to your user/role
+- Review CloudTrail logs for permission denied errors
+
+**Issue: Resource Already Exists**
+- If resources from a previous deployment exist, either:
+  - Import them into Terraform state: `terraform import <resource_type>.<name> <resource_id>`
+  - Or destroy them manually and redeploy
+
+### Cleanup and Resource Deletion
+
+To destroy all resources created by Terraform:
+
+```bash
+cd dev
+terraform destroy
+```
+
+**Warning**: This will permanently delete all infrastructure resources. Ensure you have backups of any important data.
+
+### Security Best Practices
+
+1. **Never commit `terraform.tfvars`** to version control
+   - The `.gitignore` file is configured to exclude this file
+   - Only commit template files (`*.tfvars.template`, `*.tfvars.example`)
+
+2. **Use AWS Secrets Manager** for sensitive values
+   - API keys, database passwords, and secrets should never be in Terraform files
+   - Reference secrets from Secrets Manager in your application code
+
+3. **Enable MFA** on your AWS account
+
+4. **Use IAM roles** with least-privilege permissions
+
+5. **Regularly rotate** API keys and secrets
+
+6. **Enable CloudTrail** for audit logging
+
+7. **Review security groups** to ensure only necessary ports are open
+
+### Architecture Overview
+
+The infrastructure consists of the following components:
+
+- **VPC**: Isolated network with public and private subnets across multiple availability zones
+- **Application Load Balancer (ALB)**: Distributes traffic to ECS tasks with SSL termination
+- **ECS Fargate**: Runs containerized Next.js frontend application
+- **ECR**: Stores Docker images for the frontend
+- **Cognito**: Manages user authentication and authorization
+- **Route53**: DNS management and domain routing
+- **Secrets Manager**: Securely stores API keys and secrets
+- **CloudWatch**: Logging, monitoring, and alarms
+- **Auto Scaling**: Automatically scales ECS tasks based on CPU utilization
+
+### Additional Resources
+
+- **Detailed Setup Guide**: See `dev/DEPLOYMENT_SETUP.md` for step-by-step instructions
+- **Configuration Template**: See `dev/terraform.tfvars.template` for all available options
+- **Configuration Example**: See `dev/terraform.tfvars.example` for detailed field descriptions
+- **Module Documentation**: Each module in `modules/` has its own README with specific details
+
+### Support and Contributing
+
+For issues, questions, or contributions:
+- Open an issue in the repository
+- Review existing documentation in the `docs/` directory
+- Check AWS CloudWatch logs for runtime errors
+- Consult the Amplify GenAI documentation at https://www.amplifygenai.org
+

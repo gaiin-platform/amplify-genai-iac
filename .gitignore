@@ -48,3 +48,7 @@ backend.tf
 *.backend.tf
 *.DS_Store
 *endpoints.json
+# Terraform variable files with sensitive data
+terraform.tfvars
+!*.tfvars.template
+!*.tfvars.example
