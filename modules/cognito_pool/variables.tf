@@ -64,4 +64,43 @@ variable "disable_public_signup" {
 
 variable "cognito_route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
+  type        = string
+  default     = ""
+}
+
+variable "cognito_ssl_certificate_arn" {
+  description = "ARN of an existing ACM certificate for Cognito custom domain. If provided, skips certificate creation."
+  type        = string
+  default     = ""
+}
+
+variable "use_entra_id_oidc" {
+  description = "Whether to use Microsoft Entra ID (OIDC) for authentication"
+  type        = bool
+  default     = false
+}
+
+variable "entra_id_client_id" {
+  description = "Client ID for Microsoft Entra ID OIDC"
+  type        = string
+  default     = ""
+}
+
+variable "entra_id_client_secret" {
+  description = "Client Secret for Microsoft Entra ID OIDC"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "entra_id_issuer_url" {
+  description = "Issuer URL for Microsoft Entra ID OIDC (e.g. https://login.microsoftonline.com/<TENANT_ID>/v2.0)"
+  type        = string
+  default     = ""
+}
+
+variable "pre_token_generation_lambda_arn" {
+  description = "ARN of an existing Lambda function to attach as the Pre Token Generation trigger. Leave empty to skip."
+  type        = string
+  default     = ""
 }

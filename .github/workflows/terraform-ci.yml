@@ -1,0 +1,116 @@
+name: Terraform IAC Infrastructure CI/CD
+
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - 'dev/**'
+      - 'prod/**'
+      - 'modules/**'
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'dev/**'
+      - 'prod/**'
+      - 'modules/**'
+  workflow_dispatch:      # Allow manual trigger
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform Run
+    runs-on: [self-hosted, linux, x64, rhel]
+    
+    # Map branch to active GitHub Environment
+    environment: ${{ github.ref_name == 'main' && 'production' || 'amplifydev' }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_IAM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Check Formatting
+        run: terraform fmt -check -recursive
+
+      # Determine exact working directory based on branch
+      - name: Set Active Directory
+        id: set-dir
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "dir=prod" >> $GITHUB_OUTPUT
+          else
+            echo "dir=dev" >> $GITHUB_OUTPUT
+          fi
+
+      # Safely download terraform.tfvars from AWS Secrets Manager
+      - name: Download terraform.tfvars from AWS Secrets Manager
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: |
+          SECRET_NAME="${{ steps.set-dir.outputs.dir }}-amplify-tfvars"
+          if [ -n "${{ vars.TFVARS_SECRET_NAME }}" ]; then
+            SECRET_NAME="${{ vars.TFVARS_SECRET_NAME }}"
+          fi
+          echo "Fetching secret '$SECRET_NAME' from AWS Secrets Manager in region '${{ vars.AWS_REGION }}'..."
+          SECRET_VAL=$(aws secretsmanager get-secret-value --secret-id "$SECRET_NAME" --query SecretString --output text)
+          
+          if [[ "$SECRET_VAL" =~ ^[[:space:]]*\{ ]]; then
+            echo "$SECRET_VAL" > terraform.tfvars.json
+            echo "Detected JSON format. Successfully wrote to terraform.tfvars.json."
+          else
+            echo "$SECRET_VAL" > terraform.tfvars
+            echo "Detected HCL/plain-text format. Wrote to terraform.tfvars."
+          fi
+
+      # Download terraform.tfstate from S3
+      - name: Download terraform.tfstate from S3
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: |
+          BUCKET="${{ vars.TFSTATE_S3_BUCKET }}"
+          KEY="${{ steps.set-dir.outputs.dir }}/terraform.tfstate"
+          if [ -n "${{ vars.TFSTATE_S3_KEY }}" ]; then
+            KEY="${{ vars.TFSTATE_S3_KEY }}"
+          fi
+          echo "Downloading tfstate from s3://$BUCKET/$KEY ..."
+          aws s3 cp "s3://$BUCKET/$KEY" terraform.tfstate || echo "No existing state file found — starting fresh."
+
+      - name: Terraform Init
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: terraform plan -no-color -input=false
+
+      # Apply changes only on merge/push to dev or main (PRs only run checks & plan)
+      - name: Terraform Apply
+        if: github.event_name == 'push'
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: terraform apply -auto-approve -input=false
+
+      # Upload updated tfstate back to S3 after apply
+      - name: Upload terraform.tfstate to S3
+        if: github.event_name == 'push'
+        working-directory: ${{ steps.set-dir.outputs.dir }}
+        run: |
+          BUCKET="${{ vars.TFSTATE_S3_BUCKET }}"
+          KEY="${{ steps.set-dir.outputs.dir }}/terraform.tfstate"
+          if [ -n "${{ vars.TFSTATE_S3_KEY }}" ]; then
+            KEY="${{ vars.TFSTATE_S3_KEY }}"
+          fi
+          echo "Uploading updated tfstate to s3://$BUCKET/$KEY ..."
+          aws s3 cp terraform.tfstate "s3://$BUCKET/$KEY"
+          echo "Successfully uploaded terraform.tfstate to S3."

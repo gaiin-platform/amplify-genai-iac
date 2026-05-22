@@ -48,3 +48,4 @@ backend.tf
 *.backend.tf
 *.DS_Store
 *endpoints.json
+SETUP_GUIDE.md

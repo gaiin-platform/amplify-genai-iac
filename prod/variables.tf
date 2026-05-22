@@ -269,7 +269,7 @@ variable "task_execution_role_name" {
 variable "region" {
   description = "The AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "alb_sg_id" {

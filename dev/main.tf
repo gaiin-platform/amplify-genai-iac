@@ -5,35 +5,46 @@ module "lambda_layer" {
 module "load_balancer" {
   source                  = "../modules/load_balancer"
   vpc_cidr                = var.vpc_cidr
+  vpc_id                  = var.vpc_id
   vpc_name                = "${local.env}-${var.vpc_name}"
   private_subnet_cidrs    = var.private_subnet_cidrs
   public_subnet_cidrs     = var.public_subnet_cidrs
+  public_subnet_ids       = var.public_subnet_ids
+  private_subnet_ids      = var.private_subnet_ids
   alb_logging_bucket_name = "${local.env}-${var.alb_logging_bucket_name}"
   alb_name                = "${local.env}-${var.alb_name}"
-  domain_name             = "${local.env}-${var.domain_name}"
+  domain_name             = var.domain_name
   target_group_name       = "${local.env}-${var.target_group_name}-${var.target_group_port}"
   target_group_port       = var.target_group_port
   alb_security_group_name = "${local.env}-${var.alb_security_group_name}"
   root_redirect           = false
   app_route53_zone_id     = var.app_route53_zone_id
+  ssl_certificate_arn     = var.ssl_certificate_arn
+  create_nat_gateway      = var.create_nat_gateway
   region                  = var.region
 }
 
 module "cognito_pool" {
-  source                  = "../modules/cognito_pool"
-  depends_on              = [module.load_balancer]
-  ssl_certificate_arn     = module.load_balancer.ssl_certificate_arn
-  cognito_domain          = "${local.env}-${var.cognito_domain}"
-  userpool_name           = "${local.env}-${var.userpool_name}"
-  provider_name           = "${local.env}-${var.provider_name}"
-  sp_metadata_url         = var.sp_metadata_url
-  callback_urls           = ["https://${local.env}-${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
-  logout_urls             = ["https://${local.env}-${var.domain_name}", "http://localhost:3000"]
-  create_pre_auth_lambda  = var.create_pre_auth_lambda
-  use_saml_idp            = var.use_saml_idp
-  domain_name             = "${local.env}-${var.domain_name}"
-  cognito_route53_zone_id = var.cognito_route53_zone_id
-  disable_public_signup   = var.disable_public_signup
+  source                      = "../modules/cognito_pool"
+  depends_on                  = [module.load_balancer]
+  ssl_certificate_arn         = module.load_balancer.ssl_certificate_arn
+  cognito_ssl_certificate_arn = var.ssl_certificate_arn
+  cognito_domain              = "${local.env}-${var.cognito_domain}"
+  userpool_name               = "${local.env}-${var.userpool_name}"
+  provider_name               = "${local.env}-${var.provider_name}"
+  sp_metadata_url             = var.sp_metadata_url
+  callback_urls               = ["https://${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
+  logout_urls                 = ["https://${var.domain_name}", "http://localhost:3000"]
+  create_pre_auth_lambda      = var.create_pre_auth_lambda
+  use_saml_idp                = var.use_saml_idp
+  domain_name                 = var.domain_name
+  cognito_route53_zone_id     = var.cognito_route53_zone_id
+  disable_public_signup       = var.disable_public_signup
+  use_entra_id_oidc           = var.use_entra_id_oidc
+  entra_id_client_id          = var.entra_id_client_id
+  entra_id_client_secret      = var.entra_id_client_secret
+  entra_id_issuer_url         = var.entra_id_issuer_url
+  pre_token_generation_lambda_arn = var.pre_token_generation_lambda_arn
 }
 
 module "ecr" {
@@ -83,6 +94,7 @@ module "ecs" {
   private_subnet_ids               = module.load_balancer.private_subnet_ids
   target_group_arn                 = module.load_balancer.target_group_arn
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
+  region                           = var.region
 }
 
 # load_balancer/outputs.tf
@@ -166,8 +178,13 @@ output "openai_endpoints_secret_arn" {
   value       = module.ecs.openai_endpoints_secret_arn
 }
 output "domain_name" {
-  value       = "${local.env}-${var.domain_name}"
+  value       = var.domain_name
   description = "The domain name used for the application"
+}
+
+output "alb_dns_name" {
+  value       = module.load_balancer.alb_dns_name
+  description = "The DNS name of the ALB - point your external DNS CNAME to this"
 }
 
 output "pandoc_lambda_layer_arn" {

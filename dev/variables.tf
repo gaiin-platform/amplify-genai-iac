@@ -1,3 +1,10 @@
+# AWS Provider
+variable "aws_profile" {
+  description = "AWS CLI profile name to use for authentication"
+  type        = string
+  default     = ""
+}
+
 #ECR Variables
 
 variable "ecr_repo_name" {
@@ -269,7 +276,7 @@ variable "task_execution_role_name" {
 variable "region" {
   description = "The AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "alb_sg_id" {
@@ -379,4 +386,59 @@ variable "vpc_name" {
   description = "The name of the VPC"
   type        = string
   default     = "main-vpc"
+}
+
+variable "ssl_certificate_arn" {
+  description = "ARN of an existing ACM certificate. If provided, skips certificate creation."
+  type        = string
+  default     = ""
+}
+
+variable "public_subnet_ids" {
+  description = "IDs of existing public subnets. If provided, skips subnet/networking creation."
+  type        = list(string)
+  default     = []
+}
+
+variable "private_subnet_ids" {
+  description = "IDs of existing private subnets. If provided, skips subnet/networking creation."
+  type        = list(string)
+  default     = []
+}
+
+variable "create_nat_gateway" {
+  description = "Whether to create a NAT Gateway. Required for ECS tasks in private subnets."
+  type        = bool
+  default     = true
+}
+
+variable "use_entra_id_oidc" {
+  description = "Whether to use Microsoft Entra ID (OIDC) for authentication"
+  type        = bool
+  default     = false
+}
+
+variable "entra_id_client_id" {
+  description = "Client ID for Microsoft Entra ID OIDC"
+  type        = string
+  default     = ""
+}
+
+variable "entra_id_client_secret" {
+  description = "Client Secret for Microsoft Entra ID OIDC"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "entra_id_issuer_url" {
+  description = "Issuer URL for Microsoft Entra ID OIDC (e.g. https://login.microsoftonline.com/<TENANT_ID>/v2.0)"
+  type        = string
+  default     = ""
+}
+
+variable "pre_token_generation_lambda_arn" {
+  description = "ARN of an existing Lambda Pre Token Generation trigger. Leave empty to skip."
+  type        = string
+  default     = ""
 }

@@ -17,7 +17,7 @@ def lambda_handler(event, context):
     print(f"User {username} has successfully authenticated.")
 
     # Create a Cognito Identity Provider client
-    cognito_client = boto3.client("cognito-idp", region_name="us-east-1")
+    cognito_client = boto3.client("cognito-idp", region_name="us-east-2")
 
     try:
         # Retrieve the user's attributes from Cognito User Pool
