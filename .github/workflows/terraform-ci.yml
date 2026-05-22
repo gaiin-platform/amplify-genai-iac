@@ -22,14 +22,36 @@ permissions:
 jobs:
   terraform:
     name: Terraform Run
-    runs-on: [self-hosted, linux, x64, rhel]
+    runs-on: sddcicd2arc
     
     # Map branch to active GitHub Environment
-    environment: ${{ github.ref_name == 'main' && 'production' || 'amplifydev' }}
+    environment: ${{ github.ref_name == 'main' && 'amplifyprod' || 'amplifydev' }}
     
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Install AWS CLI (for ARC runners)
+        run: |
+          if ! command -v aws &> /dev/null; then
+            echo "AWS CLI not found. Installing..."
+            curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            if command -v unzip &> /dev/null; then
+              unzip -q awscliv2.zip
+            else
+              python3 -m zipfile -e awscliv2.zip .
+            fi
+            mkdir -p $HOME/bin
+            ./aws/install --install-dir $HOME/.aws-cli --bin-dir $HOME/bin --update
+            echo "$HOME/bin" >> $GITHUB_PATH
+            rm -rf awscliv2.zip aws
+            # Verify installation immediately
+            export PATH="$HOME/bin:$PATH"
+            aws --version
+          else
+            echo "AWS CLI is already installed:"
+            aws --version
+          fi
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
