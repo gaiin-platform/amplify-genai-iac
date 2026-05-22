@@ -22,7 +22,7 @@ permissions:
 jobs:
   terraform:
     name: Terraform Run
-    runs-on: sddcicd2arc
+    runs-on: ubuntu-latest
     
     # Map branch to active GitHub Environment
     environment: ${{ github.ref_name == 'main' && 'amplifyprod' || 'amplifydev' }}
