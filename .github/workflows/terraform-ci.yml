@@ -26,6 +26,10 @@ jobs:
     
     # Map branch to active GitHub Environment
     environment: ${{ github.ref_name == 'main' && 'amplifyprod' || 'amplifydev' }}
+
+    # Override named profile — CI uses OIDC env vars instead
+    env:
+      TF_VAR_aws_profile: ""
     
     steps:
       - name: Checkout Code

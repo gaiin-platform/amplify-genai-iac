@@ -10,7 +10,7 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  profile = var.aws_profile
+  profile = var.aws_profile != "" ? var.aws_profile : null
   ignore_tags {
     keys = ["*"]
   }
