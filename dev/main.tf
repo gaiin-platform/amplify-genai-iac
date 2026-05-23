@@ -1,5 +1,5 @@
 module "lambda_layer" {
-  source                  = "../modules/lambda_layer"
+  source = "../modules/lambda_layer"
 }
 
 module "load_balancer" {
@@ -25,33 +25,33 @@ module "load_balancer" {
 }
 
 module "cognito_pool" {
-  source                      = "../modules/cognito_pool"
-  depends_on                  = [module.load_balancer]
-  ssl_certificate_arn         = module.load_balancer.ssl_certificate_arn
-  cognito_ssl_certificate_arn = var.ssl_certificate_arn
-  cognito_domain              = "${local.env}-${var.cognito_domain}"
-  userpool_name               = "${local.env}-${var.userpool_name}"
-  provider_name               = "${local.env}-${var.provider_name}"
-  sp_metadata_url             = var.sp_metadata_url
-  callback_urls               = ["https://${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
-  logout_urls                 = ["https://${var.domain_name}", "http://localhost:3000"]
-  create_pre_auth_lambda      = var.create_pre_auth_lambda
-  use_saml_idp                = var.use_saml_idp
-  domain_name                 = var.domain_name
-  cognito_route53_zone_id     = var.cognito_route53_zone_id
-  disable_public_signup       = var.disable_public_signup
-  use_entra_id_oidc           = var.use_entra_id_oidc
-  entra_id_client_id          = var.entra_id_client_id
-  entra_id_client_secret      = var.entra_id_client_secret
-  entra_id_issuer_url         = var.entra_id_issuer_url
+  source                          = "../modules/cognito_pool"
+  depends_on                      = [module.load_balancer]
+  ssl_certificate_arn             = module.load_balancer.ssl_certificate_arn
+  cognito_ssl_certificate_arn     = var.ssl_certificate_arn
+  cognito_domain                  = "${local.env}-${var.cognito_domain}"
+  userpool_name                   = "${local.env}-${var.userpool_name}"
+  provider_name                   = "${local.env}-${var.provider_name}"
+  sp_metadata_url                 = var.sp_metadata_url
+  callback_urls                   = ["https://${var.domain_name}/api/auth/callback/cognito", "http://localhost:3000/api/auth/callback/cognito"]
+  logout_urls                     = ["https://${var.domain_name}", "http://localhost:3000"]
+  create_pre_auth_lambda          = var.create_pre_auth_lambda
+  use_saml_idp                    = var.use_saml_idp
+  domain_name                     = var.domain_name
+  cognito_route53_zone_id         = var.cognito_route53_zone_id
+  disable_public_signup           = var.disable_public_signup
+  use_entra_id_oidc               = var.use_entra_id_oidc
+  entra_id_client_id              = var.entra_id_client_id
+  entra_id_client_secret          = var.entra_id_client_secret
+  entra_id_issuer_url             = var.entra_id_issuer_url
   pre_token_generation_lambda_arn = var.pre_token_generation_lambda_arn
 }
 
 module "ecr" {
-  source        = "../modules/ecr"
-  ecr_repo_name = "${local.env}-${var.ecr_repo_name}"
-  service_name  = module.ecs.ecs_service_name
-  cluster_name  = module.ecs.ecs_cluster_name
+  source           = "../modules/ecr"
+  ecr_repo_name    = "${local.env}-${var.ecr_repo_name}"
+  service_name     = module.ecs.ecs_service_name
+  cluster_name     = module.ecs.ecs_cluster_name
   notification_arn = module.ecs.ecs_alarm_notifications_topic_arn
 }
 
@@ -104,7 +104,7 @@ output "vpc_id" {
   value       = module.load_balancer.vpc_id
 }
 
-output "app_route53_zone_id"{
+output "app_route53_zone_id" {
   description = "The Route 53 Zone ID for the application"
   value       = var.app_route53_zone_id
 }
@@ -143,7 +143,7 @@ output "cognito_user_pool_client_id" {
 }
 
 output "cognito_user_pool_client_secret" {
-  value = module.cognito_pool.cognito_user_pool_client_secret
+  value     = module.cognito_pool.cognito_user_pool_client_secret
   sensitive = true
 }
 
@@ -188,7 +188,7 @@ output "alb_dns_name" {
 }
 
 output "pandoc_lambda_layer_arn" {
-  value = module.lambda_layer.pandoc_lambda_layer_arn
+  value       = module.lambda_layer.pandoc_lambda_layer_arn
   description = "The ARN for the existing version of the Pandoc Lambda layer."
 }
 

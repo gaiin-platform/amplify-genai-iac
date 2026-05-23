@@ -12,6 +12,6 @@ provider "aws" {
   region  = var.region
   profile = var.aws_profile
   ignore_tags {
-  keys = ["*"]
+    keys = ["*"]
   }
 }
