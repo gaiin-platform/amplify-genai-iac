@@ -32,11 +32,11 @@ resource "aws_cognito_user_pool" "main" {
     required            = true
   }
 
-  schema { 
-    attribute_data_type      = "String"
-    mutable                  = true
-    name                     = "saml_groups"  // can be used with preauth lambda to limit access by group
-    required                 = false  // custom attributes cannot be required
+  schema {
+    attribute_data_type = "String"
+    mutable             = true
+    name                = "saml_groups" // can be used with preauth lambda to limit access by group
+    required            = false         // custom attributes cannot be required
 
     string_attribute_constraints {
       min_length = 0
@@ -56,21 +56,21 @@ resource "aws_cognito_user_pool" "main" {
       schema
     ]
   }
-}  
+}
 
 locals {
-  is_custom_domain             = length(regexall("\\.", var.cognito_domain)) > 0
-  use_existing_cognito_cert    = var.cognito_ssl_certificate_arn != ""
-  use_cognito_route53          = var.cognito_route53_zone_id != ""
-  needs_cognito_cert_creation  = local.is_custom_domain && !local.use_existing_cognito_cert
-  resolved_cognito_cert_arn    = local.is_custom_domain ? (
+  is_custom_domain            = length(regexall("\\.", var.cognito_domain)) > 0
+  use_existing_cognito_cert   = var.cognito_ssl_certificate_arn != ""
+  use_cognito_route53         = var.cognito_route53_zone_id != ""
+  needs_cognito_cert_creation = local.is_custom_domain && !local.use_existing_cognito_cert
+  resolved_cognito_cert_arn = local.is_custom_domain ? (
     local.use_existing_cognito_cert ? var.cognito_ssl_certificate_arn : aws_acm_certificate.cognito_ssl_cert[0].arn
   ) : null
 }
 
 resource "aws_acm_certificate" "cognito_ssl_cert" {
   count             = local.needs_cognito_cert_creation ? 1 : 0
-  domain_name       = var.cognito_domain  
+  domain_name       = var.cognito_domain
   validation_method = "DNS"
 
   lifecycle {
@@ -100,7 +100,7 @@ resource "aws_route53_record" "cognito_cert_validation" {
   allow_overwrite = true
   name            = each.value.name
   type            = each.value.type
-  zone_id         = var.cognito_route53_zone_id 
+  zone_id         = var.cognito_route53_zone_id
   records         = [each.value.record]
   ttl             = 60
 }
@@ -131,11 +131,11 @@ resource "aws_cognito_user_pool_client" "main" {
     id_token      = "hours"
     refresh_token = "days"
   }
-  
+
   explicit_auth_flows = var.disable_public_signup ? ["ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"] : ["ALLOW_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
 
   prevent_user_existence_errors = "ENABLED"
-  
+
   // Set the supported identity providers based on what is enabled.
   // We include "COGNITO" here so you can use SSO in parallel with Cognito username/passwords.
   supported_identity_providers = compact([
@@ -151,7 +151,7 @@ resource "aws_route53_record" "cognito_auth_custom_domain" {
   name    = var.cognito_domain
   type    = "A"
   alias {
-    name                   = "${aws_cognito_user_pool_domain.main.cloudfront_distribution_arn}"
+    name                   = aws_cognito_user_pool_domain.main.cloudfront_distribution_arn
     zone_id                = "Z2FDTNDATAQYW2"
     evaluate_target_health = false
   }
@@ -165,10 +165,10 @@ resource "aws_cognito_identity_provider" "saml" {
   provider_type = "SAML"
 
   attribute_mapping = {
-    email       = "E-Mail Address"
-    name        = "Name"
-    given_name  = "Given Name"
-    family_name = "Surname"
+    email                = "E-Mail Address"
+    name                 = "Name"
+    given_name           = "Given Name"
+    family_name          = "Surname"
     "custom:saml_groups" = "groups"
   }
 
@@ -185,11 +185,11 @@ resource "aws_cognito_identity_provider" "entra_id" {
   provider_type = "OIDC"
 
   provider_details = {
-    client_id                     = var.entra_id_client_id
-    client_secret                 = var.entra_id_client_secret
-    attributes_request_method     = "GET"
-    oidc_issuer                   = var.entra_id_issuer_url
-    authorize_scopes              = "openid email profile"
+    client_id                 = var.entra_id_client_id
+    client_secret             = var.entra_id_client_secret
+    attributes_request_method = "GET"
+    oidc_issuer               = var.entra_id_issuer_url
+    authorize_scopes          = "openid email profile"
   }
 
   attribute_mapping = {

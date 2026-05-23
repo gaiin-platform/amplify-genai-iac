@@ -27,10 +27,10 @@ locals {
 # ACM Certificate (only created when ssl_certificate_arn is NOT provided)
 # ---------------------------------------------------------------------------
 resource "aws_acm_certificate" "ssl_san_cert" {
-  count             = !local.use_existing_cert && var.root_redirect ? 1 : 0
-  domain_name       = "*.${var.domain_name}"
+  count                     = !local.use_existing_cert && var.root_redirect ? 1 : 0
+  domain_name               = "*.${var.domain_name}"
   subject_alternative_names = [var.domain_name]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
@@ -64,10 +64,10 @@ resource "aws_route53_record" "san_cert_validation" {
 }
 
 resource "aws_acm_certificate" "ssl_cert" {
-  count             = !local.use_existing_cert && !var.root_redirect ? 1 : 0
-  domain_name       = "*.${var.domain_name}"
+  count                     = !local.use_existing_cert && !var.root_redirect ? 1 : 0
+  domain_name               = "*.${var.domain_name}"
   subject_alternative_names = [var.domain_name]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true

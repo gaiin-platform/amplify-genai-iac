@@ -7,13 +7,13 @@ resource "aws_lambda_function" "pre_auth_trigger" {
   runtime       = "python3.10"
 
   # Define the path to the ZIP file containing your Lambda code
-  filename      = "../files/preAuthLambda.zip"
+  filename = "../files/preAuthLambda.zip"
 
   source_code_hash = filebase64sha256("../files/preAuthLambda.zip")
 }
 
 resource "aws_iam_policy" "lambda_cognito_policy" {
-  count = var.create_pre_auth_lambda ? 1 : 0  
+  count       = var.create_pre_auth_lambda ? 1 : 0
   name        = "lambda_cognito_policy"
   description = "IAM policy for Lambda function to interact with Cognito and CloudWatch Logs"
 
@@ -25,7 +25,7 @@ resource "aws_iam_policy" "lambda_cognito_policy" {
         Action = [
           "cognito-idp:AdminGetUser"
         ],
-        Resource = aws_cognito_user_pool.main.arn  # Restrict to the specific Cognito user pool ARN(s)
+        Resource = aws_cognito_user_pool.main.arn # Restrict to the specific Cognito user pool ARN(s)
       },
       {
         Effect = "Allow",
@@ -34,15 +34,15 @@ resource "aws_iam_policy" "lambda_cognito_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ],
-        Resource = "arn:aws:logs:*:*:*"  # Restrict to the specific log group ARN(s) if necessary
+        Resource = "arn:aws:logs:*:*:*" # Restrict to the specific log group ARN(s) if necessary
       },
     ],
   })
 }
 
 resource "aws_iam_role" "lambda_pre_auth_exec_role" {
-  count = var.create_pre_auth_lambda ? 1 : 0  
-  name = "lambda_exec_role"
+  count = var.create_pre_auth_lambda ? 1 : 0
+  name  = "lambda_exec_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -74,5 +74,5 @@ resource "aws_lambda_permission" "allow_cognito_to_invoke_pre_auth" {
   principal     = "cognito-idp.amazonaws.com"
 
   # The source ARN is the ARN of the Cognito user pool that will invoke the Lambda function.
-  source_arn    = aws_cognito_user_pool.main.arn
+  source_arn = aws_cognito_user_pool.main.arn
 }

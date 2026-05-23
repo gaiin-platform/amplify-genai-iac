@@ -28,6 +28,6 @@ variable "cluster_name" {
 
 variable "notification_arn" {
   description = "SNS Arn for Code Pipeline Notification"
-  type        =  string
-  default     =  ""
+  type        = string
+  default     = ""
 }

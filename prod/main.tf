@@ -1,5 +1,5 @@
 module "lambda_layer" {
-  source                  = "../modules/lambda_layer"
+  source = "../modules/lambda_layer"
 }
 
 module "load_balancer" {
@@ -37,10 +37,10 @@ module "cognito_pool" {
 }
 
 module "ecr" {
-  source        = "../modules/ecr"
-  ecr_repo_name = "${local.env}-${var.ecr_repo_name}"
-  service_name  = module.ecs.ecs_service_name
-  cluster_name  = module.ecs.ecs_cluster_name
+  source           = "../modules/ecr"
+  ecr_repo_name    = "${local.env}-${var.ecr_repo_name}"
+  service_name     = module.ecs.ecs_service_name
+  cluster_name     = module.ecs.ecs_cluster_name
   notification_arn = module.ecs.ecs_alarm_notifications_topic_arn
 }
 
@@ -92,7 +92,7 @@ output "vpc_id" {
   value       = module.load_balancer.vpc_id
 }
 
-output "app_route53_zone_id"{
+output "app_route53_zone_id" {
   description = "The Route 53 Zone ID for the application"
   value       = var.app_route53_zone_id
 }
@@ -126,7 +126,7 @@ output "cognito_user_pool_client_id" {
 }
 
 output "cognito_user_pool_client_secret" {
-  value = module.cognito_pool.cognito_user_pool_client_secret
+  value     = module.cognito_pool.cognito_user_pool_client_secret
   sensitive = true
 }
 
@@ -166,7 +166,7 @@ output "domain_name" {
 }
 
 output "pandoc_lambda_layer_arn" {
-  value = module.lambda_layer.pandoc_lambda_layer_arn
+  value       = module.lambda_layer.pandoc_lambda_layer_arn
   description = "The ARN for the existing version of the Pandoc Lambda layer."
 }
 

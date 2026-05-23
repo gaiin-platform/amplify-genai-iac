@@ -119,12 +119,12 @@ variable "secrets" {
   description = "A map of the secrets to store"
   type        = map(string)
   default = {
-  
-    OPENAI_API_KEY                    = ""
-    COGNITO_CLIENT_SECRET             = ""
-    NEXTAUTH_SECRET                   = ""
+
+    OPENAI_API_KEY        = ""
+    COGNITO_CLIENT_SECRET = ""
+    NEXTAUTH_SECRET       = ""
   }
-  sensitive   = true
+  sensitive = true
 }
 
 variable "envs_name" {
@@ -156,7 +156,7 @@ variable "envs" {
     AUTH0_CLIENT_ID                   = ""
     AUTH0_CLIENT_SECRET               = ""
   }
-  sensitive   = true
+  sensitive = true
 }
 
 variable "container_cpu" {

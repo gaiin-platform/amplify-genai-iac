@@ -17,16 +17,16 @@ resource "aws_ecs_cluster" "cluster" {
 
 # ECS Service
 resource "aws_ecs_service" "service" {
-  name            = "${var.service_name}-${random_id.random.hex}"
-  cluster         = aws_ecs_cluster.cluster.id
-  task_definition = aws_ecs_task_definition.app_task.arn
-  launch_type     = "FARGATE"
-  desired_count   = var.desired_count
+  name                              = "${var.service_name}-${random_id.random.hex}"
+  cluster                           = aws_ecs_cluster.cluster.id
+  task_definition                   = aws_ecs_task_definition.app_task.arn
+  launch_type                       = "FARGATE"
+  desired_count                     = var.desired_count
   health_check_grace_period_seconds = 900
 
   network_configuration {
-    subnets          = var.private_subnet_ids
-    security_groups  = [aws_security_group.ecs_tasks_sg.id]
+    subnets         = var.private_subnet_ids
+    security_groups = [aws_security_group.ecs_tasks_sg.id]
   }
 
   load_balancer {
@@ -149,10 +149,10 @@ resource "aws_security_group" "ecs_tasks_sg" {
     security_groups = var.alb_sg_id
   }
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    self        = true
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    self      = true
   }
   egress {
     from_port   = 0

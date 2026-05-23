@@ -25,7 +25,7 @@ variable "target_group_name" {
 
 variable "target_group_port" {
   description = "The port of the target group"
-  type        = string  
+  type        = string
   default     = 3000
 }
 

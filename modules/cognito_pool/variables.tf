@@ -31,7 +31,7 @@ variable "logout_urls" {
 variable "route53_zone_id" {
   description = "Enter Route53 Zone ID"
   type        = string
-  default = ""
+  default     = ""
 }
 
 variable "create_pre_auth_lambda" {

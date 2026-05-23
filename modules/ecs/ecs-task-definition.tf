@@ -8,72 +8,72 @@ resource "aws_ecs_task_definition" "app_task" {
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-    name  = var.container_name
-    image = var.ecr_image_repository_url
-    cpu   = var.container_cpu
-    memory = var.container_memory 
+    name   = var.container_name
+    image  = var.ecr_image_repository_url
+    cpu    = var.container_cpu
+    memory = var.container_memory
     portMappings = [
       {
         containerPort = var.container_port
       }
     ]
     secrets = [
-      {name      = "AVAILABLE_MODELS"
+      { name      = "AVAILABLE_MODELS"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:AVAILABLE_MODELS::"
       },
-      {name      = "AZURE_API_NAME"
+      { name      = "AZURE_API_NAME"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:AZURE_API_NAME::"
       },
-      {name      = "AZURE_DEPLOYMENT_ID"
+      { name      = "AZURE_DEPLOYMENT_ID"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:AZURE_DEPLOYMENT_ID::"
       },
-      {name      = "API_BASE_URL"
+      { name      = "API_BASE_URL"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:API_BASE_URL::"
       },
-      {name      = "CHAT_ENDPOINT"
+      { name      = "CHAT_ENDPOINT"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:CHAT_ENDPOINT::"
       },
-      {name      = "COGNITO_CLIENT_ID"
+      { name      = "COGNITO_CLIENT_ID"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_CLIENT_ID::"
       },
-      {name      = "COGNITO_ISSUER"
+      { name      = "COGNITO_ISSUER"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_ISSUER::"
       },
-      {name      = "DEFAULT_MODEL"
+      { name      = "DEFAULT_MODEL"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:DEFAULT_MODEL::"
       },
-      {name      = "COGNITO_DOMAIN"
+      { name      = "COGNITO_DOMAIN"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:COGNITO_DOMAIN::"
       },
-      {name      = "DEFAULT_FUNCTION_CALL_MODEL"
+      { name      = "DEFAULT_FUNCTION_CALL_MODEL"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:DEFAULT_FUNCTION_CALL_MODEL::"
       },
-      {name      = "COGNITO_CLIENT_SECRET"
+      { name      = "COGNITO_CLIENT_SECRET"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:COGNITO_CLIENT_SECRET::"
       },
-      {name      = "MIXPANEL_TOKEN"
+      { name      = "MIXPANEL_TOKEN"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:MIXPANEL_TOKEN::"
       },
-      {name      = "NEXTAUTH_SECRET"
+      { name      = "NEXTAUTH_SECRET"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:NEXTAUTH_SECRET::"
       },
-      {name      = "NEXTAUTH_URL"
+      { name      = "NEXTAUTH_URL"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:NEXTAUTH_URL::"
       },
-      {name      = "OPENAI_API_HOST"
+      { name      = "OPENAI_API_HOST"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_HOST::"
       },
-      {name      = "OPENAI_API_KEY"
+      { name      = "OPENAI_API_KEY"
         valueFrom = "${aws_secretsmanager_secret.my_secrets.arn}:OPENAI_API_KEY::"
       },
-      {name      = "OPENAI_API_TYPE"
+      { name      = "OPENAI_API_TYPE"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_TYPE::"
       },
-      {name      = "OPENAI_API_VERSION"
+      { name      = "OPENAI_API_VERSION"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:OPENAI_API_VERSION::"
       }
     ]
-    
+
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -132,14 +132,14 @@ resource "aws_iam_policy" "secret_access_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
-        Action    = [
+        Effect = "Allow",
+        Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds",
           // Add other actions as needed.
         ],
-        Resource  = [
+        Resource = [
           aws_secretsmanager_secret.envs.arn,
           aws_secretsmanager_secret.my_secrets.arn,
           aws_secretsmanager_secret.openai_api_key.arn,
@@ -163,11 +163,11 @@ resource "aws_iam_policy" "cloudwatch_logs_write_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
-        Action    = [
+        Effect = "Allow",
+        Action = [
           "logs:*"
         ],
-        Resource  = "*"
+        Resource = "*"
       }
     ]
   })
@@ -181,7 +181,7 @@ resource "aws_iam_role_policy_attachment" "ecs_logs_role_policy" {
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_log_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = aws_iam_policy.cloudwatch_logs_write_policy.arn
-  
+
 }
 
 resource "aws_iam_policy" "ecr_repo_access_policy" {
@@ -192,8 +192,8 @@ resource "aws_iam_policy" "ecr_repo_access_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
-        Action    = [
+        Effect = "Allow",
+        Action = [
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchCheckLayerAvailability",
           "ecr:BatchGetImage",
@@ -204,7 +204,7 @@ resource "aws_iam_policy" "ecr_repo_access_policy" {
           // "ecr:UploadLayerPart",
           // "ecr:CompleteLayerUpload"
         ],
-        Resource  = var.ecr_image_repository_arn
+        Resource = var.ecr_image_repository_arn
       }
     ]
   })
@@ -220,17 +220,17 @@ resource "aws_iam_policy" "container_exec_policy" {
   description = "Policy that grants permissions to exec into running fargate containers"
 
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Action": [
-            "ssmmessages:CreateControlChannel",
-            "ssmmessages:CreateDataChannel",
-            "ssmmessages:OpenControlChannel",
-            "ssmmessages:OpenDataChannel"
+        "Effect" : "Allow",
+        "Action" : [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
         ],
-        "Resource": "*"
+        "Resource" : "*"
       }
     ]
   })
