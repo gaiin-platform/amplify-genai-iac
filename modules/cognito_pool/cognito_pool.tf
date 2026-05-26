@@ -47,7 +47,10 @@ resource "aws_cognito_user_pool" "main" {
   dynamic "lambda_config" {
     for_each = var.pre_token_generation_lambda_arn != "" ? [1] : []
     content {
-      pre_token_generation = var.pre_token_generation_lambda_arn
+      pre_token_generation_config {
+        lambda_arn     = var.pre_token_generation_lambda_arn
+        lambda_version = "V2_0"
+      }
     }
   }
 
