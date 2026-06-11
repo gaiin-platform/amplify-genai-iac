@@ -125,7 +125,7 @@ output "user_pool_domain" {
 }
 
 output "cognito_user_pool_url" {
-  value = module.cognito_pool.cognito_user_pool_url
+  value = "https://${module.cognito_pool.cognito_user_pool_url}"
 }
 
 output "cognito_user_pool_client_id" {
