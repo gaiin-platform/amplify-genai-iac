@@ -230,3 +230,9 @@ variable "ecr_image_repository_url" {
   type        = string
   default     = ""
 }
+
+variable "allowed_api_hosts" {
+  description = "Comma-separated list of allowed API hostnames for outbound requests from the requestOp endpoint. Used to prevent SSRF by restricting which URLs the server-side proxy can connect to."
+  type        = string
+  default     = ""
+}

@@ -17,6 +17,12 @@ resource "aws_ecs_task_definition" "app_task" {
         containerPort = var.container_port
       }
     ]
+    environment = [
+      {
+        name  = "ALLOWED_API_HOSTS"
+        value = var.allowed_api_hosts
+      }
+    ]
     secrets = [
       {name      = "AVAILABLE_MODELS"
         valueFrom = "${aws_secretsmanager_secret.envs.arn}:AVAILABLE_MODELS::"

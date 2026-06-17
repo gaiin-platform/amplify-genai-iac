@@ -154,10 +154,29 @@ resource "aws_security_group" "ecs_tasks_sg" {
     protocol    = "tcp"
     self        = true
   }
+
+  # Egress restricted to HTTPS only to mitigate SSRF attacks.
+  # The application only needs outbound HTTPS (443) for API calls
+  # (OpenAI, Azure, Cognito, AWS services) and DNS (53) for resolution.
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound HTTPS traffic only"
+  }
+  egress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound DNS over TCP"
+  }
+  egress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound DNS over UDP"
   }
 }
