@@ -21,6 +21,10 @@ resource "aws_ecs_task_definition" "app_task" {
       {
         name  = "ALLOWED_API_HOSTS"
         value = var.allowed_api_hosts
+      },
+      {
+        name  = "COGNITO_ADMIN_GROUP_NAME"
+        value = var.admin_group_name
       }
     ]
     secrets = [

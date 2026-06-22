@@ -19,3 +19,8 @@ output "cognito_user_pool_client_id" {
 output "cognito_user_pool_client_secret" {
   value = aws_cognito_user_pool_client.main.client_secret
 }
+
+output "admin_group_name" {
+  value       = aws_cognito_user_group.admin.name
+  description = "The name of the admin user pool group"
+}

@@ -386,3 +386,9 @@ variable "allowed_api_hosts" {
   type        = string
   default     = ""
 }
+
+variable "admin_group_name" {
+  description = "The name of the Cognito user pool group for admin users"
+  type        = string
+  default     = "amplify-admin"
+}

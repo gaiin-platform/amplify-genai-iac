@@ -49,7 +49,13 @@ resource "aws_cognito_user_pool" "main" {
       schema
     ]
   }
-}  
+}
+
+resource "aws_cognito_user_group" "admin" {
+  name         = var.admin_group_name
+  user_pool_id = aws_cognito_user_pool.main.id
+  description  = "Admin group for privileged access to admin API endpoints"
+}
 
 resource "aws_acm_certificate" "cognito_ssl_cert" {
   domain_name       = var.cognito_domain  

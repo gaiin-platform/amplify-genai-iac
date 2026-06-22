@@ -34,6 +34,7 @@ module "cognito_pool" {
   domain_name             = "${local.env}-${var.domain_name}"
   cognito_route53_zone_id = var.cognito_route53_zone_id
   disable_public_signup   = var.disable_public_signup
+  admin_group_name        = var.admin_group_name
 }
 
 module "ecr" {
@@ -86,6 +87,7 @@ module "ecs" {
   target_group_arn                 = module.load_balancer.target_group_arn
   alb_sg_id                        = ["${module.load_balancer.alb_sg_id}"]
   allowed_api_hosts                = var.allowed_api_hosts
+  admin_group_name                 = module.cognito_pool.admin_group_name
 }
 
 # load_balancer/outputs.tf
@@ -189,4 +191,9 @@ output "ecs_service_name" {
 output "ecs_cluster_name" {
   description = "The ARN of the ECS Cluster"
   value       = module.ecs.ecs_cluster_name
+}
+
+output "admin_group_name" {
+  description = "The name of the admin Cognito user pool group"
+  value       = module.cognito_pool.admin_group_name
 }

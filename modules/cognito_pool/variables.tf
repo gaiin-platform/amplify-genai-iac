@@ -65,3 +65,9 @@ variable "disable_public_signup" {
 variable "cognito_route53_zone_id" {
   description = "The Route53 hosted zone ID for the domain"
 }
+
+variable "admin_group_name" {
+  description = "The name of the Cognito user pool group for admin users"
+  type        = string
+  default     = "amplify-admin"
+}
