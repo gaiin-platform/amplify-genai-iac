@@ -412,7 +412,7 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-PQ-2025-09"
   certificate_arn   = aws_acm_certificate.ssl_cert[0].arn
   default_action {
     type = "fixed-response"
@@ -430,7 +430,7 @@ resource "aws_lb_listener" "https_root_redirect" {
   load_balancer_arn = aws_lb.alb.arn
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-PQ-2025-09"
   certificate_arn   = aws_acm_certificate.ssl_san_cert[0].arn
   default_action {
     type = "fixed-response"
