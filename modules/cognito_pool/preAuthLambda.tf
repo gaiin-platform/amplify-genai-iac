@@ -4,7 +4,7 @@ resource "aws_lambda_function" "pre_auth_trigger" {
   function_name = "myPreAuthTriggerFunction"
   handler       = "preAuthLambda.lambda_handler" # Replace with the actual handler
   role          = aws_iam_role.lambda_pre_auth_exec_role[0].arn
-  runtime       = "python3.10"
+  runtime       = "python3.13"
 
   # Define the path to the ZIP file containing your Lambda code
   filename      = "../files/preAuthLambda.zip"
@@ -23,7 +23,8 @@ resource "aws_iam_policy" "lambda_cognito_policy" {
       {
         Effect = "Allow",
         Action = [
-          "cognito-idp:AdminGetUser"
+          "cognito-idp:AdminGetUser",
+          "cognito-idp:ListUsers"
         ],
         Resource = aws_cognito_user_pool.main.arn  # Restrict to the specific Cognito user pool ARN(s)
       },
